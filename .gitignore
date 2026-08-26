@@ -1,0 +1,5 @@
+staging/
+data/synthetic/*/small.csv
+data/synthetic/*/medium.csv
+data/synthetic/*/large.csv
+data/synthetic/*/xlarge.csv

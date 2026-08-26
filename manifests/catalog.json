@@ -1,0 +1,163 @@
+{
+  "schemaVersion": "1.0",
+  "corpusVersion": "quest-qualification-v0.1.0",
+  "repository": "TsatsuAmable/nemosyne-data",
+  "tierRows": {
+    "smoke": 1000,
+    "small": 8000,
+    "medium": 65000,
+    "large": 100000,
+    "xlarge": 250000
+  },
+  "datasets": [
+    {
+      "id": "synthetic.linear-truth",
+      "label": "Synthetic linear truth",
+      "kind": "synthetic",
+      "description": "Deterministic exact linear relation with categorical and temporal companion fields.",
+      "topology": "POINT_CLOUD",
+      "truth": {
+        "relation": "y = 3*x + 7",
+        "monotonicTimestamp": true,
+        "groups": 4
+      },
+      "plannedTiers": [
+        "smoke",
+        "small",
+        "medium",
+        "large",
+        "xlarge"
+      ],
+      "artifacts": [
+        {
+          "tier": "smoke",
+          "role": "primary",
+          "format": "csv",
+          "path": "data/synthetic/linear-truth/smoke.csv",
+          "rows": 1000,
+          "bytes": 29431,
+          "sha256": "17741b1d143e09d21faeb3c4f417c9ac0a61b8916360f529fd6cebf93bedf1b0",
+          "compression": "none"
+        }
+      ]
+    },
+    {
+      "id": "synthetic.clustered-truth",
+      "label": "Synthetic clustered truth",
+      "kind": "synthetic",
+      "description": "Four well-separated deterministic 3D clusters with authoritative cluster labels.",
+      "topology": "POINT_CLOUD",
+      "truth": {
+        "clusters": 4,
+        "labels": "cluster_id",
+        "wellSeparated": true
+      },
+      "plannedTiers": [
+        "smoke",
+        "small",
+        "medium",
+        "large",
+        "xlarge"
+      ],
+      "artifacts": [
+        {
+          "tier": "smoke",
+          "role": "primary",
+          "format": "csv",
+          "path": "data/synthetic/clustered-truth/smoke.csv",
+          "rows": 1000,
+          "bytes": 36410,
+          "sha256": "5b0272ed50d9f751d8981c07a70d6dd9fd89f65583b16b0d4893c55620219906",
+          "compression": "none"
+        }
+      ]
+    },
+    {
+      "id": "synthetic.null-control",
+      "label": "Synthetic null control",
+      "kind": "synthetic",
+      "description": "Fixed-seed pseudo-random negative control with no intentionally encoded cross-variable relationship.",
+      "topology": "POINT_CLOUD",
+      "truth": {
+        "seed": "0x4e454d4f",
+        "intent": "negative-control",
+        "warning": "Chance structure may still appear and must not be treated as signal."
+      },
+      "plannedTiers": [
+        "smoke",
+        "small",
+        "medium",
+        "large",
+        "xlarge"
+      ],
+      "artifacts": [
+        {
+          "tier": "smoke",
+          "role": "primary",
+          "format": "csv",
+          "path": "data/synthetic/null-control/smoke.csv",
+          "rows": 1000,
+          "bytes": 41380,
+          "sha256": "1b4255d11efbe4f9910e2f932934eb2be7986cf59bb6a761fdbd93c2a1f2b152",
+          "compression": "none"
+        }
+      ]
+    },
+    {
+      "id": "synthetic.missingness-truth",
+      "label": "Synthetic missingness truth",
+      "kind": "synthetic",
+      "description": "Deterministic mixture of MCAR-like, cohort-conditioned and structural missingness.",
+      "topology": "POINT_CLOUD",
+      "truth": {
+        "mcarRule": "id % 11 == 0",
+        "marRule": "cohort == 3 && id % 3 == 0",
+        "structuralRule": "cohort == 4"
+      },
+      "plannedTiers": [
+        "smoke",
+        "small",
+        "medium",
+        "large",
+        "xlarge"
+      ],
+      "artifacts": [
+        {
+          "tier": "smoke",
+          "role": "primary",
+          "format": "csv",
+          "path": "data/synthetic/missingness-truth/smoke.csv",
+          "rows": 1000,
+          "bytes": 19150,
+          "sha256": "f46d0df42c635c89d62ac355c993e19651fca17f57b270c55c7a3474ca0204e4",
+          "compression": "none"
+        }
+      ]
+    },
+    {
+      "id": "real.palmer-penguins",
+      "label": "Palmer Penguins",
+      "kind": "real",
+      "description": "Real ecological measurements with mixed numeric/categorical semantics and naturally occurring missingness.",
+      "topology": "POINT_CLOUD",
+      "plannedTiers": [
+        "smoke"
+      ],
+      "artifacts": [],
+      "sourceManifest": "sources/palmer-penguins.json"
+    },
+    {
+      "id": "real.usgs-earthquakes",
+      "label": "USGS Earthquake Catalog Snapshot",
+      "kind": "real",
+      "description": "Pinned geospatial and temporal earthquake snapshot acquired from the USGS FDSN event service.",
+      "topology": "GEO_TEMPORAL",
+      "plannedTiers": [
+        "smoke",
+        "small"
+      ],
+      "artifacts": [],
+      "sourceManifest": "sources/usgs-earthquakes.json"
+    }
+  ]
+}
