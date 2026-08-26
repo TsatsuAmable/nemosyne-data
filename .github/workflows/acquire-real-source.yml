@@ -1,0 +1,30 @@
+name: Acquire real source for review
+
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: Source manifest name without .json
+        required: true
+        type: choice
+        options:
+          - palmer-penguins
+          - usgs-earthquakes
+
+permissions:
+  contents: read
+
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/acquire-source.mjs "${{ inputs.source }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: "source-review-${{ inputs.source }}"
+          path: staging/
+          if-no-files-found: error

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "1.0",
+  "datasetId": "real.usgs-earthquakes",
+  "upstream": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=csv&starttime=2025-01-01&endtime=2025-02-01&minmagnitude=2.5&orderby=time-asc",
+  "project": "https://earthquake.usgs.gov/fdsnws/event/1/",
+  "license": "USGS public data; preserve source attribution and acquisition metadata",
+  "acquisition": {
+    "format": "csv",
+    "compression": "none",
+    "snapshotPolicy": "manual-review-before-materialization",
+    "queryWindow": "2025-01-01T00:00:00Z/2025-02-01T00:00:00Z"
+  },
+  "fitnessPurpose": [
+    "geospatial coordinates",
+    "time ordering",
+    "skewed magnitude distribution",
+    "heterogeneous missing fields"
+  ]
+}

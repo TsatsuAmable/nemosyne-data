@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "1.0",
+  "datasetId": "real.palmer-penguins",
+  "upstream": "https://raw.githubusercontent.com/allisonhorst/palmerpenguins/main/inst/extdata/penguins.csv",
+  "project": "https://github.com/allisonhorst/palmerpenguins",
+  "license": "CC0-1.0",
+  "citation": "Horst AM, Hill AP, Gorman KB (2020), palmerpenguins; source observations by Gorman et al.",
+  "acquisition": {
+    "format": "csv",
+    "compression": "none",
+    "snapshotPolicy": "manual-review-before-materialization"
+  },
+  "fitnessPurpose": [
+    "mixed measurement semantics",
+    "natural missingness",
+    "categorical group structure",
+    "scientific provenance"
+  ]
+}
