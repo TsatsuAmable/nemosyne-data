@@ -50,7 +50,7 @@
           "id": "linear-relation",
           "claim": "Every row satisfies y = 3*x + 7 exactly.",
           "expected": { "slope": 3, "intercept": 7 },
-          "tolerance": { "absolute": 0 },
+          "tolerance": { "kind": "exact" },
           "authority": "analytical-derivation",
           "derivation": "Closed-form generator definition; independently checkable row by row without Nemosyne runtime code."
         },
@@ -58,7 +58,7 @@
           "id": "group-cardinality",
           "claim": "The fixture contains four categorical groups.",
           "expected": 4,
-          "tolerance": { "absolute": 0 },
+          "tolerance": { "kind": "exact" },
           "authority": "analytical-derivation",
           "derivation": "Generator emits group id modulo four."
         }
@@ -121,7 +121,7 @@
           "id": "cluster-count",
           "claim": "The authoritative source partition contains exactly four clusters.",
           "expected": 4,
-          "tolerance": { "absolute": 0 },
+          "tolerance": { "kind": "exact" },
           "authority": "source-authoritative",
           "derivation": "Generator assigns cluster_id deterministically modulo four; cluster_id is the source-authoritative partition label."
         }
@@ -238,7 +238,7 @@
           "id": "mcar-rule",
           "claim": "mcar_value is missing exactly when id % 11 == 0.",
           "expected": "id % 11 == 0",
-          "tolerance": "exact-rule",
+          "tolerance": { "kind": "exact" },
           "authority": "analytical-derivation",
           "derivation": "Closed-form generator rule."
         },
@@ -246,7 +246,7 @@
           "id": "mar-rule",
           "claim": "mar_value is additionally missing for cohort 3 rows where id % 3 == 0.",
           "expected": "cohort == 3 && id % 3 == 0",
-          "tolerance": "exact-rule",
+          "tolerance": { "kind": "exact" },
           "authority": "analytical-derivation",
           "derivation": "Closed-form generator rule."
         },
@@ -254,7 +254,7 @@
           "id": "structural-rule",
           "claim": "structural_value is missing for cohort 4.",
           "expected": "cohort == 4",
-          "tolerance": "exact-rule",
+          "tolerance": { "kind": "exact" },
           "authority": "analytical-derivation",
           "derivation": "Closed-form generator rule."
         }
