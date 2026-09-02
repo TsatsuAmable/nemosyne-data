@@ -1,9 +1,10 @@
 import { createHash } from 'node:crypto';
-import { lstat, readFile } from 'node:fs/promises';
+import { lstat, readFile, realpath } from 'node:fs/promises';
 import { resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
+const REAL_ROOT = await realpath(ROOT);
 const catalogPath = resolve(ROOT, 'manifests/catalog.json');
 const schemaPath = resolve(ROOT, 'manifests/catalog.schema.json');
 const catalog = JSON.parse(await readFile(catalogPath, 'utf8'));
@@ -41,6 +42,11 @@ function assertPattern(value, pattern, context) {
   assert(typeof value === 'string' && new RegExp(pattern).test(value), `${context}: invalid value ${JSON.stringify(value)}`);
 }
 
+function assertUniqueStrings(values, context) {
+  assert(Array.isArray(values), `${context}: array required`);
+  assert(new Set(values).size === values.length, `${context}: duplicate values are not allowed`);
+}
+
 function resolveRepositoryPath(relativePath, context) {
   assert(typeof relativePath === 'string' && relativePath.length > 0, `${context}: path required`);
   const absolute = resolve(ROOT, relativePath);
@@ -53,6 +59,8 @@ async function requireRepositoryFile(relativePath, context) {
   const metadata = await lstat(path);
   assert(!metadata.isSymbolicLink(), `${context}: symlinks are not allowed for governed repository files`);
   assert(metadata.isFile(), `${context}: regular file required`);
+  const canonical = await realpath(path);
+  assert(canonical.startsWith(`${REAL_ROOT}${sep}`), `${context}: canonical path escapes repository root`);
   return { path, metadata };
 }
 
@@ -76,7 +84,9 @@ function validateShape(candidateCatalog) {
     assertEnum(dataset.governanceState, enumValues(datasetSchema, 'governanceState'), `${context}.governanceState`);
     assertEnum(dataset.privacy, enumValues(datasetSchema, 'privacy'), `${context}.privacy`);
     assert(Array.isArray(dataset.intendedUses) && dataset.intendedUses.length > 0, `${context}: intendedUses must be non-empty`);
+    assertUniqueStrings(dataset.intendedUses, `${context}.intendedUses`);
     assert(Array.isArray(dataset.plannedTiers) && dataset.plannedTiers.length > 0, `${context}: plannedTiers must be non-empty`);
+    assertUniqueStrings(dataset.plannedTiers, `${context}.plannedTiers`);
     assert(Array.isArray(dataset.artifacts), `${context}: artifacts must be an array`);
 
     required(dataset.license, schema.$defs.license.required, `${context}.license`);
@@ -95,16 +105,23 @@ function validateShape(candidateCatalog) {
       fieldNames.add(field.name);
       assertEnum(field.storageType, enumValues(fieldSchema, 'storageType'), `${context}.${field.name}.storageType`);
       assertEnum(field.measurementScale, enumValues(fieldSchema, 'measurementScale'), `${context}.${field.name}.measurementScale`);
+      assertEnum(field.semanticType, enumValues(fieldSchema, 'semanticType'), `${context}.${field.name}.semanticType`);
       assert(typeof field.nullable === 'boolean', `${context}.${field.name}.nullable must be boolean`);
     }
 
+    const knownAnswerIds = new Set();
     for (const knownAnswer of dataset.knownAnswers ?? []) {
       required(knownAnswer, knownAnswerSchema.required, `${context}.knownAnswer`);
+      assert(!knownAnswerIds.has(knownAnswer.id), `${context}: duplicate known-answer id ${knownAnswer.id}`);
+      knownAnswerIds.add(knownAnswer.id);
       assertEnum(knownAnswer.authority, enumValues(knownAnswerSchema, 'authority'), `${context}.${knownAnswer.id}.authority`);
     }
 
+    const artifactPaths = new Set();
     for (const artifact of dataset.artifacts) {
       required(artifact, artifactSchema.required, `${context}.artifact`);
+      assert(!artifactPaths.has(artifact.path), `${context}: duplicate artifact path ${artifact.path}`);
+      artifactPaths.add(artifact.path);
       assertPattern(artifact.sha256, artifactSchema.properties.sha256.pattern, `${context}.${artifact.path}.sha256`);
       assertEnum(artifact.format, enumValues(artifactSchema, 'format'), `${context}.${artifact.path}.format`);
       assert(Number.isInteger(artifact.rows) && artifact.rows >= 0, `${context}.${artifact.path}.rows must be a non-negative integer`);
@@ -219,8 +236,17 @@ expectShapeFailure('governed dataset without measurement semantics', (sample) =>
 expectShapeFailure('invalid measurement scale', (sample) => {
   sample.datasets[0].measurementSchema.fields[0].measurementScale = 'float';
 });
+expectShapeFailure('invalid semantic type', (sample) => {
+  sample.datasets[0].measurementSchema.fields[0].semanticType = 'number';
+});
 expectShapeFailure('duplicate field name', (sample) => {
   sample.datasets[0].measurementSchema.fields[1].name = sample.datasets[0].measurementSchema.fields[0].name;
+});
+expectShapeFailure('duplicate known-answer id', (sample) => {
+  sample.datasets[0].knownAnswers.push({ ...sample.datasets[0].knownAnswers[0] });
+});
+expectShapeFailure('duplicate artifact path', (sample) => {
+  sample.datasets[0].artifacts.push({ ...sample.datasets[0].artifacts[0] });
 });
 expectShapeFailure('known answer without tolerance', (sample) => {
   delete sample.datasets[0].knownAnswers[0].tolerance;
@@ -236,4 +262,4 @@ const governed = catalog.datasets.filter((dataset) => dataset.governanceState ==
 const candidates = catalog.datasets.filter((dataset) => dataset.governanceState === 'candidate').length;
 const artifacts = catalog.datasets.reduce((sum, dataset) => sum + dataset.artifacts.length, 0);
 console.log(`validated ${catalog.datasets.length} datasets (${governed} governed, ${candidates} candidate), ${artifacts} materialized artifacts, schema ${catalog.schemaVersion}, corpus ${catalog.corpusVersion}`);
-console.log('negative contract self-tests: 8 passed');
+console.log('negative contract self-tests: 11 passed');
