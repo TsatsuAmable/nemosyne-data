@@ -68,7 +68,10 @@
       },
       "allOf": [
         {
-          "if": { "properties": { "governanceState": { "const": "governed" } } },
+          "if": {
+            "required": ["governanceState"],
+            "properties": { "governanceState": { "const": "governed" } }
+          },
           "then": {
             "required": ["contentDigest"],
             "properties": {
@@ -78,6 +81,15 @@
                 "properties": { "status": { "const": "declared" } }
               }
             }
+          }
+        },
+        {
+          "if": {
+            "required": ["governanceState"],
+            "properties": { "governanceState": { "const": "candidate" } }
+          },
+          "then": {
+            "properties": { "contentDigest": { "type": "null" } }
           }
         }
       ]
@@ -119,7 +131,10 @@
       },
       "allOf": [
         {
-          "if": { "properties": { "status": { "const": "declared" } } },
+          "if": {
+            "required": ["status"],
+            "properties": { "status": { "const": "declared" } }
+          },
           "then": { "properties": { "fields": { "minItems": 1 } } }
         }
       ]
@@ -127,12 +142,13 @@
     "field": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "storageType", "measurementScale", "nullable"],
+      "required": ["name", "storageType", "measurementScale", "semanticType", "nullable"],
       "properties": {
         "name": { "type": "string", "minLength": 1 },
         "storageType": { "enum": ["integer", "number", "string", "boolean", "timestamp"] },
-        "measurementScale": {
-          "enum": ["identifier", "nominal", "ordinal", "interval", "ratio", "circular", "temporal", "compositional", "geospatial"]
+        "measurementScale": { "enum": ["none", "nominal", "ordinal", "interval", "ratio"] },
+        "semanticType": {
+          "enum": ["identifier", "categorical", "quantitative", "temporal", "circular", "compositional-part", "geospatial-coordinate"]
         },
         "nullable": { "type": "boolean" },
         "unit": { "type": "string", "minLength": 1 }
