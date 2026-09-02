@@ -71,3 +71,11 @@ deterministic generator definition
 ## Promotion gate
 
 Promotion requires deterministic regeneration, both independent validators green on the exact head, post-implementation adversarial review of the real artifact-to-verifier call path, and no unresolved blocker. A green identity check alone is not evidence that the scientific expected quantities are correct.
+
+## Post-implementation adversarial review
+
+**Status:** REVIEW ACTIVE
+
+The first post-implementation pass found a `BLOCKER`: the initial implementation tightened semantic-family coverage and structured-verification requirements while continuing to advertise the frozen PT2A `2.0` schema identity. That would have silently changed the meaning of an existing public contract. The fix-forward promotes the contract explicitly to `2.1`, changes the schema `$id`, and encodes exact one-per-family coverage plus governed/verified semantic-fixture requirements in the formal schema as well as the executable validator.
+
+The review also confirmed a deliberate dependency rather than a blocker: the graph artifact round-trips through Nemosyne's durable `Dataset.fromJSON`/`toJSON` boundary with all 1,000 rows, 1,000 edges and 1,000 durable row IDs preserved, but the current ordinary Rust JSON file parser accepts only row arrays. PT2B therefore keeps application ingestion out of its completion claim and requires the later integration tranche to select an edge-preserving authority path.

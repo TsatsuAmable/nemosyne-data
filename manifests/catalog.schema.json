@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://nemosyne.world/schemas/nemosyne-data/catalog-2.0.schema.json",
+  "$id": "https://nemosyne.world/schemas/nemosyne-data/catalog-2.1.schema.json",
   "title": "Nemosyne governed dataset catalogue",
   "type": "object",
   "additionalProperties": false,
   "required": ["schemaVersion", "corpusVersion", "repository", "tierRows", "datasets"],
   "properties": {
-    "schemaVersion": { "const": "2.0" },
+    "schemaVersion": { "const": "2.1" },
     "corpusVersion": { "type": "string", "minLength": 1 },
     "repository": { "const": "TsatsuAmable/nemosyne-data" },
     "tierRows": {
@@ -15,7 +15,34 @@
     },
     "datasets": {
       "type": "array",
-      "items": { "$ref": "#/$defs/dataset" }
+      "items": { "$ref": "#/$defs/dataset" },
+      "allOf": [
+        {
+          "contains": { "required": ["semanticFixtureFamily"], "properties": { "semanticFixtureFamily": { "const": "aggregate" } } },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": { "required": ["semanticFixtureFamily"], "properties": { "semanticFixtureFamily": { "const": "empirical-distribution" } } },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": { "required": ["semanticFixtureFamily"], "properties": { "semanticFixtureFamily": { "const": "binned-density" } } },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": { "required": ["semanticFixtureFamily"], "properties": { "semanticFixtureFamily": { "const": "source-partition-cluster" } } },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": { "required": ["semanticFixtureFamily"], "properties": { "semanticFixtureFamily": { "const": "source-relationship-graph" } } },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      ]
     }
   },
   "$defs": {
@@ -99,6 +126,29 @@
           },
           "then": {
             "properties": { "contentDigest": { "type": "null" } }
+          }
+        },
+        {
+          "if": { "required": ["semanticFixtureFamily"] },
+          "then": {
+            "required": ["knownAnswers"],
+            "properties": {
+              "governanceState": { "const": "governed" },
+              "knownAnswers": {
+                "minItems": 1,
+                "items": {
+                  "allOf": [
+                    { "$ref": "#/$defs/knownAnswer" },
+                    { "required": ["verification"] }
+                  ]
+                }
+              },
+              "artifacts": {
+                "contains": { "required": ["role"], "properties": { "role": { "const": "primary" } } },
+                "minContains": 1,
+                "maxContains": 1
+              }
+            }
           }
         }
       ]
