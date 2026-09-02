@@ -37,12 +37,12 @@
       "measurementSchema": {
         "status": "declared",
         "fields": [
-          { "name": "id", "storageType": "integer", "measurementScale": "identifier", "nullable": false },
-          { "name": "x", "storageType": "integer", "measurementScale": "interval", "nullable": false },
-          { "name": "y", "storageType": "integer", "measurementScale": "interval", "nullable": false },
-          { "name": "z", "storageType": "integer", "measurementScale": "interval", "nullable": false },
-          { "name": "group", "storageType": "string", "measurementScale": "nominal", "nullable": false },
-          { "name": "timestamp_s", "storageType": "timestamp", "measurementScale": "temporal", "nullable": false, "unit": "seconds since Unix epoch" }
+          { "name": "id", "storageType": "integer", "measurementScale": "none", "semanticType": "identifier", "nullable": false },
+          { "name": "x", "storageType": "integer", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "y", "storageType": "integer", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "z", "storageType": "integer", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "group", "storageType": "string", "measurementScale": "nominal", "semanticType": "categorical", "nullable": false },
+          { "name": "timestamp_s", "storageType": "timestamp", "measurementScale": "interval", "semanticType": "temporal", "nullable": false, "unit": "seconds since Unix epoch" }
         ]
       },
       "knownAnswers": [
@@ -109,11 +109,11 @@
       "measurementSchema": {
         "status": "declared",
         "fields": [
-          { "name": "id", "storageType": "integer", "measurementScale": "identifier", "nullable": false },
-          { "name": "x", "storageType": "number", "measurementScale": "interval", "nullable": false },
-          { "name": "y", "storageType": "number", "measurementScale": "interval", "nullable": false },
-          { "name": "z", "storageType": "number", "measurementScale": "interval", "nullable": false },
-          { "name": "cluster_id", "storageType": "integer", "measurementScale": "nominal", "nullable": false }
+          { "name": "id", "storageType": "integer", "measurementScale": "none", "semanticType": "identifier", "nullable": false },
+          { "name": "x", "storageType": "number", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "y", "storageType": "number", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "z", "storageType": "number", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "cluster_id", "storageType": "integer", "measurementScale": "nominal", "semanticType": "categorical", "nullable": false }
         ]
       },
       "knownAnswers": [
@@ -172,11 +172,11 @@
       "measurementSchema": {
         "status": "declared",
         "fields": [
-          { "name": "id", "storageType": "integer", "measurementScale": "identifier", "nullable": false },
-          { "name": "x", "storageType": "number", "measurementScale": "interval", "nullable": false },
-          { "name": "y", "storageType": "number", "measurementScale": "interval", "nullable": false },
-          { "name": "z", "storageType": "number", "measurementScale": "interval", "nullable": false },
-          { "name": "category", "storageType": "string", "measurementScale": "nominal", "nullable": false }
+          { "name": "id", "storageType": "integer", "measurementScale": "none", "semanticType": "identifier", "nullable": false },
+          { "name": "x", "storageType": "number", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "y", "storageType": "number", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "z", "storageType": "number", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "category", "storageType": "string", "measurementScale": "nominal", "semanticType": "categorical", "nullable": false }
         ]
       },
       "truth": {
@@ -225,12 +225,12 @@
       "measurementSchema": {
         "status": "declared",
         "fields": [
-          { "name": "id", "storageType": "integer", "measurementScale": "identifier", "nullable": false },
-          { "name": "cohort", "storageType": "integer", "measurementScale": "nominal", "nullable": false },
-          { "name": "base", "storageType": "integer", "measurementScale": "interval", "nullable": false },
-          { "name": "mcar_value", "storageType": "number", "measurementScale": "interval", "nullable": true },
-          { "name": "mar_value", "storageType": "number", "measurementScale": "interval", "nullable": true },
-          { "name": "structural_value", "storageType": "number", "measurementScale": "interval", "nullable": true }
+          { "name": "id", "storageType": "integer", "measurementScale": "none", "semanticType": "identifier", "nullable": false },
+          { "name": "cohort", "storageType": "integer", "measurementScale": "nominal", "semanticType": "categorical", "nullable": false },
+          { "name": "base", "storageType": "integer", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "mcar_value", "storageType": "number", "measurementScale": "interval", "semanticType": "quantitative", "nullable": true },
+          { "name": "mar_value", "storageType": "number", "measurementScale": "interval", "semanticType": "quantitative", "nullable": true },
+          { "name": "structural_value", "storageType": "number", "measurementScale": "interval", "semanticType": "quantitative", "nullable": true }
         ]
       },
       "knownAnswers": [
