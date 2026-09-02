@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nemosyne.world/schemas/nemosyne-data/catalog-2.0.schema.json",
+  "title": "Nemosyne governed dataset catalogue",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "corpusVersion", "repository", "tierRows", "datasets"],
+  "properties": {
+    "schemaVersion": { "const": "2.0" },
+    "corpusVersion": { "type": "string", "minLength": 1 },
+    "repository": { "const": "TsatsuAmable/nemosyne-data" },
+    "tierRows": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 1 }
+    },
+    "datasets": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/dataset" }
+    }
+  },
+  "$defs": {
+    "dataset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "datasetVersion", "label", "kind", "description", "topology",
+        "governanceState", "privacy", "license", "provenance", "intendedUses",
+        "measurementSchema", "plannedTiers", "artifacts"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$" },
+        "datasetVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+        "label": { "type": "string", "minLength": 1 },
+        "kind": { "enum": ["synthetic", "real"] },
+        "description": { "type": "string", "minLength": 1 },
+        "topology": { "type": "string", "minLength": 1 },
+        "governanceState": { "enum": ["candidate", "governed", "retired"] },
+        "contentDigest": {
+          "type": ["string", "null"],
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "privacy": { "enum": ["synthetic", "public", "restricted", "unknown"] },
+        "license": { "$ref": "#/$defs/license" },
+        "provenance": { "$ref": "#/$defs/provenance" },
+        "intendedUses": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "measurementSchema": { "$ref": "#/$defs/measurementSchema" },
+        "knownAnswers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/knownAnswer" }
+        },
+        "truth": { "type": "object" },
+        "plannedTiers": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "artifacts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/artifact" }
+        },
+        "sourceManifest": { "type": "string", "minLength": 1 }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["governanceState"],
+            "properties": { "governanceState": { "const": "governed" } }
+          },
+          "then": {
+            "required": ["contentDigest"],
+            "properties": {
+              "contentDigest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+              "artifacts": { "minItems": 1 },
+              "measurementSchema": {
+                "properties": { "status": { "const": "declared" } }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["governanceState"],
+            "properties": { "governanceState": { "const": "candidate" } }
+          },
+          "then": {
+            "properties": { "contentDigest": { "type": "null" } }
+          }
+        }
+      ]
+    },
+    "license": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "name"],
+      "properties": {
+        "status": { "enum": ["declared", "pending-review"] },
+        "name": { "type": "string", "minLength": 1 },
+        "sourceManifest": { "type": "string", "minLength": 1 }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["origin", "transformations"],
+      "properties": {
+        "origin": { "type": "string", "minLength": 1 },
+        "generator": { "type": "string", "minLength": 1 },
+        "sourceManifest": { "type": "string", "minLength": 1 },
+        "transformations": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "measurementSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "fields"],
+      "properties": {
+        "status": { "enum": ["declared", "pending-review"] },
+        "fields": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/field" }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["status"],
+            "properties": { "status": { "const": "declared" } }
+          },
+          "then": { "properties": { "fields": { "minItems": 1 } } }
+        }
+      ]
+    },
+    "field": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "storageType", "measurementScale", "semanticType", "nullable"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "storageType": { "enum": ["integer", "number", "string", "boolean", "timestamp"] },
+        "measurementScale": { "enum": ["none", "nominal", "ordinal", "interval", "ratio"] },
+        "semanticType": {
+          "enum": ["identifier", "categorical", "quantitative", "temporal", "circular", "compositional-part", "geospatial-coordinate"]
+        },
+        "nullable": { "type": "boolean" },
+        "unit": { "type": "string", "minLength": 1 }
+      }
+    },
+    "knownAnswer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "claim", "expected", "tolerance", "authority", "derivation"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "claim": { "type": "string", "minLength": 1 },
+        "expected": {},
+        "tolerance": { "$ref": "#/$defs/tolerance" },
+        "authority": { "enum": ["analytical-derivation", "independent-reference", "source-authoritative"] },
+        "derivation": { "type": "string", "minLength": 1 }
+      }
+    },
+    "tolerance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": { "enum": ["exact", "absolute", "relative"] },
+        "value": { "type": "number", "minimum": 0 }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["kind"],
+            "properties": { "kind": { "enum": ["absolute", "relative"] } }
+          },
+          "then": { "required": ["value"] }
+        }
+      ]
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tier", "role", "format", "path", "rows", "bytes", "sha256", "compression"],
+      "properties": {
+        "tier": { "type": "string", "minLength": 1 },
+        "role": { "type": "string", "minLength": 1 },
+        "format": { "enum": ["csv", "json", "arrow", "parquet"] },
+        "path": { "type": "string", "minLength": 1 },
+        "rows": { "type": "integer", "minimum": 0 },
+        "bytes": { "type": "integer", "minimum": 0 },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "compression": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

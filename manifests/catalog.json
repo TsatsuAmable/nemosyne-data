@@ -1,6 +1,6 @@
 {
-  "schemaVersion": "1.0",
-  "corpusVersion": "quest-qualification-v0.1.0",
+  "schemaVersion": "2.0",
+  "corpusVersion": "nemosyne-corpus-v0.2.0",
   "repository": "TsatsuAmable/nemosyne-data",
   "tierRows": {
     "smoke": 1000,
@@ -12,22 +12,63 @@
   "datasets": [
     {
       "id": "synthetic.linear-truth",
+      "datasetVersion": "0.1.0",
       "label": "Synthetic linear truth",
       "kind": "synthetic",
       "description": "Deterministic exact linear relation with categorical and temporal companion fields.",
       "topology": "POINT_CLOUD",
+      "governanceState": "governed",
+      "contentDigest": "sha256:d95169b340df9d6cd2395d177c93483275377b9598d0fc8ca941ca29931dd46b",
+      "privacy": "synthetic",
+      "license": {
+        "status": "declared",
+        "name": "Project-generated synthetic fixture"
+      },
+      "provenance": {
+        "origin": "Deterministic project-generated fixture",
+        "generator": "scripts/generate-synthetic.mjs",
+        "transformations": []
+      },
+      "intendedUses": [
+        "analytical known-answer validation",
+        "scale qualification",
+        "temporal and categorical ingestion checks"
+      ],
+      "measurementSchema": {
+        "status": "declared",
+        "fields": [
+          { "name": "id", "storageType": "integer", "measurementScale": "none", "semanticType": "identifier", "nullable": false },
+          { "name": "x", "storageType": "integer", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "y", "storageType": "integer", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "z", "storageType": "integer", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "group", "storageType": "string", "measurementScale": "nominal", "semanticType": "categorical", "nullable": false },
+          { "name": "timestamp_s", "storageType": "timestamp", "measurementScale": "interval", "semanticType": "temporal", "nullable": false, "unit": "seconds since Unix epoch" }
+        ]
+      },
+      "knownAnswers": [
+        {
+          "id": "linear-relation",
+          "claim": "Every row satisfies y = 3*x + 7 exactly.",
+          "expected": { "slope": 3, "intercept": 7 },
+          "tolerance": { "kind": "exact" },
+          "authority": "analytical-derivation",
+          "derivation": "Closed-form generator definition; independently checkable row by row without Nemosyne runtime code."
+        },
+        {
+          "id": "group-cardinality",
+          "claim": "The fixture contains four categorical groups.",
+          "expected": 4,
+          "tolerance": { "kind": "exact" },
+          "authority": "analytical-derivation",
+          "derivation": "Generator emits group id modulo four."
+        }
+      ],
       "truth": {
         "relation": "y = 3*x + 7",
         "monotonicTimestamp": true,
         "groups": 4
       },
-      "plannedTiers": [
-        "smoke",
-        "small",
-        "medium",
-        "large",
-        "xlarge"
-      ],
+      "plannedTiers": ["smoke", "small", "medium", "large", "xlarge"],
       "artifacts": [
         {
           "tier": "smoke",
@@ -43,22 +84,54 @@
     },
     {
       "id": "synthetic.clustered-truth",
+      "datasetVersion": "0.1.0",
       "label": "Synthetic clustered truth",
       "kind": "synthetic",
       "description": "Four well-separated deterministic 3D clusters with authoritative cluster labels.",
       "topology": "POINT_CLOUD",
+      "governanceState": "governed",
+      "contentDigest": "sha256:b8a2bd77d1b5c40ae8728b7463a70c092bd270b424e25d4ea1ceab92bf38c60c",
+      "privacy": "synthetic",
+      "license": {
+        "status": "declared",
+        "name": "Project-generated synthetic fixture"
+      },
+      "provenance": {
+        "origin": "Deterministic project-generated fixture",
+        "generator": "scripts/generate-synthetic.mjs",
+        "transformations": []
+      },
+      "intendedUses": [
+        "source-partition cluster membership validation",
+        "cluster representation checks",
+        "scale qualification"
+      ],
+      "measurementSchema": {
+        "status": "declared",
+        "fields": [
+          { "name": "id", "storageType": "integer", "measurementScale": "none", "semanticType": "identifier", "nullable": false },
+          { "name": "x", "storageType": "number", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "y", "storageType": "number", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "z", "storageType": "number", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "cluster_id", "storageType": "integer", "measurementScale": "nominal", "semanticType": "categorical", "nullable": false }
+        ]
+      },
+      "knownAnswers": [
+        {
+          "id": "cluster-count",
+          "claim": "The authoritative source partition contains exactly four clusters.",
+          "expected": 4,
+          "tolerance": { "kind": "exact" },
+          "authority": "source-authoritative",
+          "derivation": "Generator assigns cluster_id deterministically modulo four; cluster_id is the source-authoritative partition label."
+        }
+      ],
       "truth": {
         "clusters": 4,
         "labels": "cluster_id",
         "wellSeparated": true
       },
-      "plannedTiers": [
-        "smoke",
-        "small",
-        "medium",
-        "large",
-        "xlarge"
-      ],
+      "plannedTiers": ["smoke", "small", "medium", "large", "xlarge"],
       "artifacts": [
         {
           "tier": "smoke",
@@ -74,22 +147,44 @@
     },
     {
       "id": "synthetic.null-control",
+      "datasetVersion": "0.1.0",
       "label": "Synthetic null control",
       "kind": "synthetic",
       "description": "Fixed-seed pseudo-random negative control with no intentionally encoded cross-variable relationship.",
       "topology": "POINT_CLOUD",
+      "governanceState": "governed",
+      "contentDigest": "sha256:a8fc61ae4f40bcf07df513d62e28db4a8acdbe95b0e60421636837595d7764dd",
+      "privacy": "synthetic",
+      "license": {
+        "status": "declared",
+        "name": "Project-generated synthetic fixture"
+      },
+      "provenance": {
+        "origin": "Fixed-seed project-generated negative control",
+        "generator": "scripts/generate-synthetic.mjs",
+        "transformations": []
+      },
+      "intendedUses": [
+        "negative-control diagnostics",
+        "spurious-pattern checks",
+        "abstention research precursor"
+      ],
+      "measurementSchema": {
+        "status": "declared",
+        "fields": [
+          { "name": "id", "storageType": "integer", "measurementScale": "none", "semanticType": "identifier", "nullable": false },
+          { "name": "x", "storageType": "number", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "y", "storageType": "number", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "z", "storageType": "number", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "category", "storageType": "string", "measurementScale": "nominal", "semanticType": "categorical", "nullable": false }
+        ]
+      },
       "truth": {
         "seed": "0x4e454d4f",
         "intent": "negative-control",
         "warning": "Chance structure may still appear and must not be treated as signal."
       },
-      "plannedTiers": [
-        "smoke",
-        "small",
-        "medium",
-        "large",
-        "xlarge"
-      ],
+      "plannedTiers": ["smoke", "small", "medium", "large", "xlarge"],
       "artifacts": [
         {
           "tier": "smoke",
@@ -105,22 +200,71 @@
     },
     {
       "id": "synthetic.missingness-truth",
+      "datasetVersion": "0.1.0",
       "label": "Synthetic missingness truth",
       "kind": "synthetic",
       "description": "Deterministic mixture of MCAR-like, cohort-conditioned and structural missingness.",
       "topology": "POINT_CLOUD",
+      "governanceState": "governed",
+      "contentDigest": "sha256:e90906236ce629929f7a597731a2dce36150743530644fd2cc7f7452e59ac5a9",
+      "privacy": "synthetic",
+      "license": {
+        "status": "declared",
+        "name": "Project-generated synthetic fixture"
+      },
+      "provenance": {
+        "origin": "Deterministic project-generated missingness fixture",
+        "generator": "scripts/generate-synthetic.mjs",
+        "transformations": []
+      },
+      "intendedUses": [
+        "missingness ingestion validation",
+        "measurement-schema nullability checks",
+        "boundary behavior diagnostics"
+      ],
+      "measurementSchema": {
+        "status": "declared",
+        "fields": [
+          { "name": "id", "storageType": "integer", "measurementScale": "none", "semanticType": "identifier", "nullable": false },
+          { "name": "cohort", "storageType": "integer", "measurementScale": "nominal", "semanticType": "categorical", "nullable": false },
+          { "name": "base", "storageType": "integer", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "mcar_value", "storageType": "number", "measurementScale": "interval", "semanticType": "quantitative", "nullable": true },
+          { "name": "mar_value", "storageType": "number", "measurementScale": "interval", "semanticType": "quantitative", "nullable": true },
+          { "name": "structural_value", "storageType": "number", "measurementScale": "interval", "semanticType": "quantitative", "nullable": true }
+        ]
+      },
+      "knownAnswers": [
+        {
+          "id": "mcar-rule",
+          "claim": "mcar_value is missing exactly when id % 11 == 0.",
+          "expected": "id % 11 == 0",
+          "tolerance": { "kind": "exact" },
+          "authority": "analytical-derivation",
+          "derivation": "Closed-form generator rule."
+        },
+        {
+          "id": "mar-rule",
+          "claim": "mar_value is additionally missing for cohort 3 rows where id % 3 == 0.",
+          "expected": "cohort == 3 && id % 3 == 0",
+          "tolerance": { "kind": "exact" },
+          "authority": "analytical-derivation",
+          "derivation": "Closed-form generator rule."
+        },
+        {
+          "id": "structural-rule",
+          "claim": "structural_value is missing for cohort 4.",
+          "expected": "cohort == 4",
+          "tolerance": { "kind": "exact" },
+          "authority": "analytical-derivation",
+          "derivation": "Closed-form generator rule."
+        }
+      ],
       "truth": {
         "mcarRule": "id % 11 == 0",
         "marRule": "cohort == 3 && id % 3 == 0",
         "structuralRule": "cohort == 4"
       },
-      "plannedTiers": [
-        "smoke",
-        "small",
-        "medium",
-        "large",
-        "xlarge"
-      ],
+      "plannedTiers": ["smoke", "small", "medium", "large", "xlarge"],
       "artifacts": [
         {
           "tier": "smoke",
@@ -136,26 +280,69 @@
     },
     {
       "id": "real.palmer-penguins",
+      "datasetVersion": "0.1.0",
       "label": "Palmer Penguins",
       "kind": "real",
       "description": "Real ecological measurements with mixed numeric/categorical semantics and naturally occurring missingness.",
       "topology": "POINT_CLOUD",
-      "plannedTiers": [
-        "smoke"
+      "governanceState": "candidate",
+      "contentDigest": null,
+      "privacy": "public",
+      "license": {
+        "status": "declared",
+        "name": "CC0-1.0",
+        "sourceManifest": "sources/palmer-penguins.json"
+      },
+      "provenance": {
+        "origin": "Palmer Penguins upstream dataset",
+        "sourceManifest": "sources/palmer-penguins.json",
+        "transformations": []
+      },
+      "intendedUses": [
+        "mixed measurement semantics",
+        "natural missingness",
+        "categorical group structure",
+        "scientific provenance"
       ],
+      "measurementSchema": {
+        "status": "pending-review",
+        "fields": []
+      },
+      "plannedTiers": ["smoke"],
       "artifacts": [],
       "sourceManifest": "sources/palmer-penguins.json"
     },
     {
       "id": "real.usgs-earthquakes",
+      "datasetVersion": "0.1.0",
       "label": "USGS Earthquake Catalog Snapshot",
       "kind": "real",
       "description": "Pinned geospatial and temporal earthquake snapshot acquired from the USGS FDSN event service.",
       "topology": "GEO_TEMPORAL",
-      "plannedTiers": [
-        "smoke",
-        "small"
+      "governanceState": "candidate",
+      "contentDigest": null,
+      "privacy": "public",
+      "license": {
+        "status": "declared",
+        "name": "USGS public data; preserve source attribution and acquisition metadata",
+        "sourceManifest": "sources/usgs-earthquakes.json"
+      },
+      "provenance": {
+        "origin": "USGS FDSN event service pinned query",
+        "sourceManifest": "sources/usgs-earthquakes.json",
+        "transformations": []
+      },
+      "intendedUses": [
+        "geospatial coordinates",
+        "time ordering",
+        "skewed magnitude distribution",
+        "heterogeneous missing fields"
       ],
+      "measurementSchema": {
+        "status": "pending-review",
+        "fields": []
+      },
+      "plannedTiers": ["smoke", "small"],
       "artifacts": [],
       "sourceManifest": "sources/usgs-earthquakes.json"
     }
