@@ -3,7 +3,7 @@
 **Date:** 2 September 2026
 **Base:** `main@dbffb6bb8b1f348403ccf24f704936b07aeb60c2`
 **Branch:** `codex/pt2b-known-answer-families`
-**Status:** PRE-IMPLEMENTATION CONTRACT
+**Status:** POST-IMPLEMENTATION REVIEW COMPLETE / ADOPT
 
 ## Purpose
 
@@ -74,8 +74,26 @@ Promotion requires deterministic regeneration, both independent validators green
 
 ## Post-implementation adversarial review
 
-**Status:** REVIEW ACTIVE
+**Disposition:** ADOPT
 
 The first post-implementation pass found a `BLOCKER`: the initial implementation tightened semantic-family coverage and structured-verification requirements while continuing to advertise the frozen PT2A `2.0` schema identity. That would have silently changed the meaning of an existing public contract. The fix-forward promotes the contract explicitly to `2.1`, changes the schema `$id`, and encodes exact one-per-family coverage plus governed/verified semantic-fixture requirements in the formal schema as well as the executable validator.
 
 The review also confirmed a deliberate dependency rather than a blocker: the graph artifact round-trips through Nemosyne's durable `Dataset.fromJSON`/`toJSON` boundary with all 1,000 rows, 1,000 edges and 1,000 durable row IDs preserved, but the current ordinary Rust JSON file parser accepts only row arrays. PT2B therefore keeps application ingestion out of its completion claim and requires the later integration tranche to select an edge-preserving authority path.
+
+### Adversarial disposition
+
+- **BLOCKER — fixed:** public contract tightening reused schema identity `2.0`; fixed forward as explicit schema `2.1` with a new `$id` and formal one-per-family coverage constraints.
+- **DEFER:** current catalogue/UI ingestion of the edge-bearing graph artifact. A later integration tranche must preserve source edges through an authoritative registration entry point and add production-path evidence before claiming the corpus graph is product-loadable.
+- **SUGGESTION:** add the PT2C metamorphic-parent/relation contract before generating variants so invariance expectations are machine-readable rather than encoded in filenames.
+
+### Final evidence
+
+- `npm run validate` passes: 11 catalogue datasets, 9 governed, 2 candidate, 9 materialized artifacts, schema `2.1`, corpus `v0.3.0`;
+- all 17 structured known answers execute across exactly five required semantic fixture families;
+- 18 catalogue negative cases and 7 known-answer negative cases fail closed;
+- `npm run generate:known-answers` followed by a generated-data diff is clean;
+- a scratch-copy byte mutation changed aggregate group A's sum from 250 to 258 and was independently rejected both by known-answer recomputation and by SHA-256 identity validation;
+- Nemosyne's durable `Dataset.fromJSON`/`toJSON` boundary preserves the committed graph's 1,000 rows, 1,000 source edges and 1,000 row IDs;
+- final source inspection found no import of Nemosyne application or Rust/WASM implementation code in the generator or verifier.
+
+No unresolved PT2B blocker remains. The residual product risk is explicit: these are independent corpus truths, not yet production-path comparisons against Nemosyne's Rust/WASM outputs.
