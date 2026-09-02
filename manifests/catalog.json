@@ -1,6 +1,6 @@
 {
   "schemaVersion": "2.0",
-  "corpusVersion": "nemosyne-corpus-v0.2.0",
+  "corpusVersion": "nemosyne-corpus-v0.3.0",
   "repository": "TsatsuAmable/nemosyne-data",
   "tierRows": {
     "smoke": 1000,
@@ -274,6 +274,459 @@
           "rows": 1000,
           "bytes": 19150,
           "sha256": "f46d0df42c635c89d62ac355c993e19651fca17f57b270c55c7a3474ca0204e4",
+          "compression": "none"
+        }
+      ]
+    },
+    {
+      "id": "synthetic.aggregate-family",
+      "datasetVersion": "0.1.0",
+      "label": "Aggregate family known answer",
+      "kind": "synthetic",
+      "description": "Four equal source groups with exact counts, sums and means for aggregate-family verification.",
+      "topology": "TABULAR",
+      "semanticFixtureFamily": "aggregate",
+      "governanceState": "governed",
+      "contentDigest": "sha256:9bbd62297c428644f7614201e137acb4aebeeda9fc30cddf568620edb60e67d5",
+      "privacy": "synthetic",
+      "license": {
+        "status": "declared",
+        "name": "Project-generated synthetic fixture"
+      },
+      "provenance": {
+        "origin": "Deterministic closed-form PT2B fixture",
+        "generator": "scripts/generate-known-answers.mjs",
+        "transformations": []
+      },
+      "intendedUses": [
+        "aggregate known-answer validation",
+        "group count and sum verification"
+      ],
+      "measurementSchema": {
+        "status": "declared",
+        "fields": [
+          { "name": "id", "storageType": "integer", "measurementScale": "none", "semanticType": "identifier", "nullable": false },
+          { "name": "group", "storageType": "string", "measurementScale": "nominal", "semanticType": "categorical", "nullable": false },
+          { "name": "value", "storageType": "integer", "measurementScale": "ratio", "semanticType": "quantitative", "nullable": false }
+        ]
+      },
+      "knownAnswers": [
+        {
+          "id": "group-counts",
+          "claim": "Each of the four source groups contains exactly 250 observations.",
+          "expected": [
+            { "key": ["A"], "count": 250 },
+            { "key": ["B"], "count": 250 },
+            { "key": ["C"], "count": 250 },
+            { "key": ["D"], "count": 250 }
+          ],
+          "tolerance": { "kind": "exact" },
+          "authority": "analytical-derivation",
+          "derivation": "Rows cycle through A, B, C and D exactly 250 times.",
+          "verification": { "operation": "group-counts", "fields": ["group"] }
+        },
+        {
+          "id": "group-sums",
+          "claim": "Group values sum to 250, 500, 750 and 1000 for A through D.",
+          "expected": [
+            { "key": ["A"], "sum": 250 },
+            { "key": ["B"], "sum": 500 },
+            { "key": ["C"], "sum": 750 },
+            { "key": ["D"], "sum": 1000 }
+          ],
+          "tolerance": { "kind": "exact" },
+          "authority": "analytical-derivation",
+          "derivation": "Each group has 250 rows and its value is respectively 1, 2, 3 or 4.",
+          "verification": { "operation": "group-sums", "groupBy": "group", "field": "value" }
+        },
+        {
+          "id": "total-sum",
+          "claim": "The value column sums to 2500.",
+          "expected": 2500,
+          "tolerance": { "kind": "exact" },
+          "authority": "analytical-derivation",
+          "derivation": "250 multiplied by the closed-form group value sum 1 + 2 + 3 + 4.",
+          "verification": { "operation": "sum", "field": "value" }
+        }
+      ],
+      "truth": {
+        "groups": 4,
+        "groupValues": { "A": 1, "B": 2, "C": 3, "D": 4 }
+      },
+      "plannedTiers": ["smoke"],
+      "artifacts": [
+        {
+          "tier": "smoke",
+          "role": "primary",
+          "format": "csv",
+          "path": "data/synthetic/aggregate-family/smoke.csv",
+          "rows": 1000,
+          "bytes": 7905,
+          "sha256": "fdf00e605fa243afe557b2043fddb63cf899081d2f108aed491d13e05a1500e1",
+          "compression": "none"
+        }
+      ]
+    },
+    {
+      "id": "synthetic.distribution-family",
+      "datasetVersion": "0.1.0",
+      "label": "Empirical distribution known answer",
+      "kind": "synthetic",
+      "description": "An exact discrete empirical distribution containing one hundred copies of every integer from zero through nine.",
+      "topology": "TABULAR",
+      "semanticFixtureFamily": "empirical-distribution",
+      "governanceState": "governed",
+      "contentDigest": "sha256:9a9c47dd1588bee23828d1cf623415ee8bec4040fa8eda2279b8d51890f6e9ba",
+      "privacy": "synthetic",
+      "license": {
+        "status": "declared",
+        "name": "Project-generated synthetic fixture"
+      },
+      "provenance": {
+        "origin": "Deterministic closed-form PT2B fixture",
+        "generator": "scripts/generate-known-answers.mjs",
+        "transformations": []
+      },
+      "intendedUses": [
+        "empirical distribution known-answer validation",
+        "R7 quantile convention verification"
+      ],
+      "measurementSchema": {
+        "status": "declared",
+        "fields": [
+          { "name": "id", "storageType": "integer", "measurementScale": "none", "semanticType": "identifier", "nullable": false },
+          { "name": "value", "storageType": "integer", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false }
+        ]
+      },
+      "knownAnswers": [
+        {
+          "id": "value-frequencies",
+          "claim": "Every integer from zero through nine occurs exactly one hundred times.",
+          "expected": [
+            { "key": [0], "count": 100 },
+            { "key": [1], "count": 100 },
+            { "key": [2], "count": 100 },
+            { "key": [3], "count": 100 },
+            { "key": [4], "count": 100 },
+            { "key": [5], "count": 100 },
+            { "key": [6], "count": 100 },
+            { "key": [7], "count": 100 },
+            { "key": [8], "count": 100 },
+            { "key": [9], "count": 100 }
+          ],
+          "tolerance": { "kind": "exact" },
+          "authority": "analytical-derivation",
+          "derivation": "The value is id modulo ten over exactly one thousand rows.",
+          "verification": { "operation": "group-counts", "fields": ["value"] }
+        },
+        {
+          "id": "mean",
+          "claim": "The arithmetic mean is 4.5.",
+          "expected": 4.5,
+          "tolerance": { "kind": "exact" },
+          "authority": "analytical-derivation",
+          "derivation": "The mean of the equally weighted integers zero through nine is 4.5.",
+          "verification": { "operation": "mean", "field": "value" }
+        },
+        {
+          "id": "q25-r7",
+          "claim": "The R7 25th percentile is 2.",
+          "expected": 2,
+          "tolerance": { "kind": "exact" },
+          "authority": "analytical-derivation",
+          "derivation": "R7 interpolation at index 249.75 lies within the one hundred repeated values equal to 2.",
+          "verification": { "operation": "quantile-r7", "field": "value", "probability": 0.25 }
+        },
+        {
+          "id": "median-r7",
+          "claim": "The R7 median is 4.5.",
+          "expected": 4.5,
+          "tolerance": { "kind": "exact" },
+          "authority": "analytical-derivation",
+          "derivation": "The two central observations are 4 and 5.",
+          "verification": { "operation": "quantile-r7", "field": "value", "probability": 0.5 }
+        },
+        {
+          "id": "q75-r7",
+          "claim": "The R7 75th percentile is 7.",
+          "expected": 7,
+          "tolerance": { "kind": "exact" },
+          "authority": "analytical-derivation",
+          "derivation": "R7 interpolation at index 749.25 lies within the one hundred repeated values equal to 7.",
+          "verification": { "operation": "quantile-r7", "field": "value", "probability": 0.75 }
+        }
+      ],
+      "truth": {
+        "support": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        "frequencyPerValue": 100,
+        "quantileMethod": "R7"
+      },
+      "plannedTiers": ["smoke"],
+      "artifacts": [
+        {
+          "tier": "smoke",
+          "role": "primary",
+          "format": "csv",
+          "path": "data/synthetic/distribution-family/smoke.csv",
+          "rows": 1000,
+          "bytes": 5899,
+          "sha256": "083209c6eff92592f8738e68e3c14966e6cc50997b03ce7bca7e95180b07befa",
+          "compression": "none"
+        }
+      ]
+    },
+    {
+      "id": "synthetic.binned-density-family",
+      "datasetVersion": "0.1.0",
+      "label": "Binned density known answer",
+      "kind": "synthetic",
+      "description": "Two equally occupied empirical coordinate atoms separated by twenty x-axis units for bounded binned-density verification.",
+      "topology": "TABULAR",
+      "semanticFixtureFamily": "binned-density",
+      "governanceState": "governed",
+      "contentDigest": "sha256:d1cf53110269c506a5a866222fe0cbb6aff850c78cb5782b48d21948dc4b1fe7",
+      "privacy": "synthetic",
+      "license": {
+        "status": "declared",
+        "name": "Project-generated synthetic fixture"
+      },
+      "provenance": {
+        "origin": "Deterministic closed-form PT2B fixture",
+        "generator": "scripts/generate-known-answers.mjs",
+        "transformations": []
+      },
+      "intendedUses": [
+        "binned empirical density validation",
+        "constant-axis and separated-cell handling"
+      ],
+      "measurementSchema": {
+        "status": "declared",
+        "fields": [
+          { "name": "id", "storageType": "integer", "measurementScale": "none", "semanticType": "identifier", "nullable": false },
+          { "name": "x", "storageType": "integer", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "y", "storageType": "integer", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false }
+        ]
+      },
+      "knownAnswers": [
+        {
+          "id": "occupied-coordinate-counts",
+          "claim": "The empirical field has exactly two occupied coordinates with five hundred observations each.",
+          "expected": [
+            { "key": [-10, 0], "count": 500 },
+            { "key": [10, 0], "count": 500 }
+          ],
+          "tolerance": { "kind": "exact" },
+          "authority": "analytical-derivation",
+          "derivation": "The first five hundred rows are at (-10, 0) and the remaining five hundred at (10, 0).",
+          "verification": { "operation": "group-counts", "fields": ["x", "y"] }
+        },
+        {
+          "id": "x-separation",
+          "claim": "The occupied x coordinates span exactly twenty units.",
+          "expected": 20,
+          "tolerance": { "kind": "exact" },
+          "authority": "analytical-derivation",
+          "derivation": "The exact x support is {-10, 10}.",
+          "verification": { "operation": "range", "field": "x" }
+        }
+      ],
+      "truth": {
+        "object": "bounded empirical occupancy, not continuous probability density",
+        "occupiedCoordinates": 2,
+        "countPerCoordinate": 500
+      },
+      "plannedTiers": ["smoke"],
+      "artifacts": [
+        {
+          "tier": "smoke",
+          "role": "primary",
+          "format": "csv",
+          "path": "data/synthetic/binned-density-family/smoke.csv",
+          "rows": 1000,
+          "bytes": 9397,
+          "sha256": "9cee930cf858eb8abe8d2a8b42bbb72dcaa32ea13802de1efec86c196198e78a",
+          "compression": "none"
+        }
+      ]
+    },
+    {
+      "id": "synthetic.source-partition-cluster-family",
+      "datasetVersion": "0.1.0",
+      "label": "Source-partition cluster known answer",
+      "kind": "synthetic",
+      "description": "Four explicit source partitions with exact membership and coordinate means; no cluster inference is required or authorized.",
+      "topology": "POINT_CLOUD",
+      "semanticFixtureFamily": "source-partition-cluster",
+      "governanceState": "governed",
+      "contentDigest": "sha256:e839ca345fb7f71b15e04cbfb91640ae9e59f216bf850c201cd39d2a235c78af",
+      "privacy": "synthetic",
+      "license": {
+        "status": "declared",
+        "name": "Project-generated synthetic fixture"
+      },
+      "provenance": {
+        "origin": "Deterministic closed-form PT2B fixture",
+        "generator": "scripts/generate-known-answers.mjs",
+        "transformations": []
+      },
+      "intendedUses": [
+        "source-partition cluster validation",
+        "exact membership and centroid verification"
+      ],
+      "measurementSchema": {
+        "status": "declared",
+        "fields": [
+          { "name": "id", "storageType": "integer", "measurementScale": "none", "semanticType": "identifier", "nullable": false },
+          { "name": "cluster_id", "storageType": "string", "measurementScale": "nominal", "semanticType": "categorical", "nullable": false },
+          { "name": "x", "storageType": "integer", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "y", "storageType": "integer", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false }
+        ]
+      },
+      "knownAnswers": [
+        {
+          "id": "partition-counts",
+          "claim": "Each explicit source partition contains exactly 250 observations.",
+          "expected": [
+            { "key": ["A"], "count": 250 },
+            { "key": ["B"], "count": 250 },
+            { "key": ["C"], "count": 250 },
+            { "key": ["D"], "count": 250 }
+          ],
+          "tolerance": { "kind": "exact" },
+          "authority": "source-authoritative",
+          "derivation": "cluster_id cycles through four explicit source labels over one thousand rows.",
+          "verification": { "operation": "group-counts", "fields": ["cluster_id"] }
+        },
+        {
+          "id": "partition-coordinate-means",
+          "claim": "The source partitions have exact coordinate means at the four declared centers.",
+          "expected": [
+            { "key": ["A"], "means": [-12, -12] },
+            { "key": ["B"], "means": [12, -12] },
+            { "key": ["C"], "means": [-12, 12] },
+            { "key": ["D"], "means": [12, 12] }
+          ],
+          "tolerance": { "kind": "exact" },
+          "authority": "analytical-derivation",
+          "derivation": "Every observation in a source partition is emitted at its declared constant coordinate.",
+          "verification": { "operation": "group-means", "groupBy": "cluster_id", "fields": ["x", "y"] }
+        }
+      ],
+      "truth": {
+        "authorityField": "cluster_id",
+        "inferenceAuthorized": false,
+        "partitions": 4
+      },
+      "plannedTiers": ["smoke"],
+      "artifacts": [
+        {
+          "tier": "smoke",
+          "role": "primary",
+          "format": "csv",
+          "path": "data/synthetic/source-partition-cluster-family/smoke.csv",
+          "rows": 1000,
+          "bytes": 12908,
+          "sha256": "96ec25c03a8dd83864bd0d13d0a7d8035be4cdf3b56f2ac73e9a39734b5ddc3e",
+          "compression": "none"
+        }
+      ]
+    },
+    {
+      "id": "synthetic.relationship-graph-family",
+      "datasetVersion": "0.1.0",
+      "label": "Source relationship graph known answer",
+      "kind": "synthetic",
+      "description": "Four disconnected directed cycles with durable row identities and exact source-authoritative edges.",
+      "topology": "GRAPH",
+      "semanticFixtureFamily": "source-relationship-graph",
+      "governanceState": "governed",
+      "contentDigest": "sha256:48b0d14c69d1f0dadebf5c0cba2359d68f8ecdaa94db36a5154de2c0ad919ee4",
+      "privacy": "synthetic",
+      "license": {
+        "status": "declared",
+        "name": "Project-generated synthetic fixture"
+      },
+      "provenance": {
+        "origin": "Deterministic closed-form PT2B fixture",
+        "generator": "scripts/generate-known-answers.mjs",
+        "transformations": []
+      },
+      "intendedUses": [
+        "source-authoritative graph validation",
+        "component and directed-degree verification",
+        "production DatasetJSON ingestion compatibility"
+      ],
+      "measurementSchema": {
+        "status": "declared",
+        "fields": [
+          { "name": "node_id", "storageType": "string", "measurementScale": "none", "semanticType": "identifier", "nullable": false },
+          { "name": "community", "storageType": "string", "measurementScale": "nominal", "semanticType": "categorical", "nullable": false }
+        ]
+      },
+      "knownAnswers": [
+        {
+          "id": "node-count",
+          "claim": "The source graph contains exactly one thousand nodes.",
+          "expected": 1000,
+          "tolerance": { "kind": "exact" },
+          "authority": "source-authoritative",
+          "derivation": "The committed DatasetJSON contains one row and durable row ID per source node.",
+          "verification": { "operation": "graph-node-count" }
+        },
+        {
+          "id": "edge-count",
+          "claim": "The source graph contains exactly one thousand directed edges.",
+          "expected": 1000,
+          "tolerance": { "kind": "exact" },
+          "authority": "source-authoritative",
+          "derivation": "Every node has exactly one committed source edge to the next node in its community cycle.",
+          "verification": { "operation": "graph-edge-count" }
+        },
+        {
+          "id": "weak-components",
+          "claim": "The graph has exactly four weakly connected components.",
+          "expected": 4,
+          "tolerance": { "kind": "exact" },
+          "authority": "analytical-derivation",
+          "derivation": "Four disjoint 250-node cycles have no cross-cycle source edge.",
+          "verification": { "operation": "graph-weak-component-count" }
+        },
+        {
+          "id": "directed-degree-range",
+          "claim": "Every node has directed in-degree one and out-degree one.",
+          "expected": { "inMin": 1, "inMax": 1, "outMin": 1, "outMax": 1 },
+          "tolerance": { "kind": "exact" },
+          "authority": "analytical-derivation",
+          "derivation": "Each directed cycle contributes one incoming and one outgoing source edge per node.",
+          "verification": { "operation": "graph-degree-range" }
+        },
+        {
+          "id": "durable-node-identity",
+          "claim": "Every source node_id equals the durable DatasetJSON row ID at the same row position.",
+          "expected": true,
+          "tolerance": { "kind": "exact" },
+          "authority": "source-authoritative",
+          "derivation": "The generator emits node_id and rowIds from the same closed-form zero-padded identity sequence.",
+          "verification": { "operation": "graph-row-id-field-alignment", "field": "node_id" }
+        }
+      ],
+      "truth": {
+        "directionality": "DIRECTED",
+        "nodeIdentity": "DatasetJSON.rowIds",
+        "edgeAuthority": "committed source edges",
+        "parallelEdgePolicy": "PRESERVE",
+        "selfLoopPolicy": "PRESERVE"
+      },
+      "plannedTiers": ["smoke"],
+      "artifacts": [
+        {
+          "tier": "smoke",
+          "role": "primary",
+          "format": "json",
+          "path": "data/synthetic/relationship-graph-family/smoke.json",
+          "rows": 1000,
+          "bytes": 123216,
+          "sha256": "6aebc2e12af54a0e2f81d08dac185270ce168c1060459113e5f9a7a758efb348",
           "compression": "none"
         }
       ]

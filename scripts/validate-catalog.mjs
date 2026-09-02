@@ -13,6 +13,7 @@ const schema = JSON.parse(await readFile(schemaPath, 'utf8'));
 const datasetSchema = schema.$defs?.dataset;
 const fieldSchema = schema.$defs?.field;
 const knownAnswerSchema = schema.$defs?.knownAnswer;
+const knownAnswerVerificationSchema = schema.$defs?.knownAnswerVerification;
 const toleranceSchema = schema.$defs?.tolerance;
 const artifactSchema = schema.$defs?.artifact;
 
@@ -48,6 +49,11 @@ function assertUniqueStrings(values, context) {
   assert(new Set(values).size === values.length, `${context}: duplicate values are not allowed`);
 }
 
+function assertOnlyProperties(value, allowed, context) {
+  const unknown = Object.keys(value).filter((key) => !allowed.includes(key));
+  assert(unknown.length === 0, `${context}: unknown properties ${unknown.join(', ')}`);
+}
+
 function resolveRepositoryPath(relativePath, context) {
   assert(typeof relativePath === 'string' && relativePath.length > 0, `${context}: path required`);
   const absolute = resolve(ROOT, relativePath);
@@ -68,8 +74,72 @@ async function requireRepositoryFile(relativePath, context) {
 function validateTolerance(tolerance, context) {
   required(tolerance, toleranceSchema.required, context);
   assertEnum(tolerance.kind, enumValues(toleranceSchema, 'kind'), `${context}.kind`);
+  assertOnlyProperties(
+    tolerance,
+    tolerance.kind === 'exact' ? ['kind'] : ['kind', 'value'],
+    context,
+  );
   if (tolerance.kind === 'absolute' || tolerance.kind === 'relative') {
     assert(typeof tolerance.value === 'number' && Number.isFinite(tolerance.value) && tolerance.value >= 0, `${context}.value must be a finite non-negative number`);
+  }
+}
+
+function validateKnownAnswerVerification(verification, fieldNames, context) {
+  required(verification, knownAnswerVerificationSchema.required, context);
+  assertEnum(
+    verification.operation,
+    enumValues(knownAnswerVerificationSchema, 'operation'),
+    `${context}.operation`,
+  );
+  const allowedPropertiesByOperation = {
+    'row-count': ['operation'],
+    sum: ['operation', 'field'],
+    mean: ['operation', 'field'],
+    range: ['operation', 'field'],
+    'quantile-r7': ['operation', 'field', 'probability'],
+    'group-counts': ['operation', 'fields'],
+    'group-sums': ['operation', 'groupBy', 'field'],
+    'group-means': ['operation', 'groupBy', 'fields'],
+    'graph-node-count': ['operation'],
+    'graph-edge-count': ['operation'],
+    'graph-weak-component-count': ['operation'],
+    'graph-degree-range': ['operation'],
+    'graph-row-id-field-alignment': ['operation', 'field'],
+  };
+  assertOnlyProperties(verification, allowedPropertiesByOperation[verification.operation], context);
+
+  const requireField = (name) => {
+    assert(typeof verification[name] === 'string' && verification[name].length > 0, `${context}.${name} is required`);
+    assert(fieldNames.has(verification[name]), `${context}.${name} names unknown field ${verification[name]}`);
+  };
+  const requireFields = () => {
+    assert(Array.isArray(verification.fields) && verification.fields.length > 0, `${context}.fields must be non-empty`);
+    assertUniqueStrings(verification.fields, `${context}.fields`);
+    for (const field of verification.fields) {
+      assert(fieldNames.has(field), `${context}.fields names unknown field ${field}`);
+    }
+  };
+
+  if (['sum', 'mean', 'range', 'quantile-r7', 'graph-row-id-field-alignment'].includes(verification.operation)) {
+    requireField('field');
+  }
+  if (verification.operation === 'quantile-r7') {
+    assert(
+      typeof verification.probability === 'number' &&
+      Number.isFinite(verification.probability) &&
+      verification.probability >= 0 &&
+      verification.probability <= 1,
+      `${context}.probability must be finite and in [0, 1]`,
+    );
+  }
+  if (verification.operation === 'group-counts' || verification.operation === 'group-means') {
+    requireFields();
+  }
+  if (verification.operation === 'group-sums' || verification.operation === 'group-means') {
+    requireField('groupBy');
+  }
+  if (verification.operation === 'group-sums') {
+    requireField('field');
   }
 }
 
@@ -81,6 +151,7 @@ function validateShape(candidateCatalog) {
   assert(Array.isArray(candidateCatalog.datasets), 'catalog.datasets must be an array');
 
   const ids = new Set();
+  const semanticFixtureFamilies = new Set();
   for (const dataset of candidateCatalog.datasets) {
     const context = `dataset ${dataset?.id ?? '<missing-id>'}`;
     required(dataset, datasetSchema.required, context);
@@ -92,6 +163,18 @@ function validateShape(candidateCatalog) {
     assertEnum(dataset.kind, enumValues(datasetSchema, 'kind'), `${context}.kind`);
     assertEnum(dataset.governanceState, enumValues(datasetSchema, 'governanceState'), `${context}.governanceState`);
     assertEnum(dataset.privacy, enumValues(datasetSchema, 'privacy'), `${context}.privacy`);
+    if (dataset.semanticFixtureFamily) {
+      assertEnum(
+        dataset.semanticFixtureFamily,
+        enumValues(datasetSchema, 'semanticFixtureFamily'),
+        `${context}.semanticFixtureFamily`,
+      );
+      assert(
+        !semanticFixtureFamilies.has(dataset.semanticFixtureFamily),
+        `${context}: duplicate semantic fixture family ${dataset.semanticFixtureFamily}`,
+      );
+      semanticFixtureFamilies.add(dataset.semanticFixtureFamily);
+    }
     assert(Array.isArray(dataset.intendedUses) && dataset.intendedUses.length > 0, `${context}: intendedUses must be non-empty`);
     assertUniqueStrings(dataset.intendedUses, `${context}.intendedUses`);
     assert(Array.isArray(dataset.plannedTiers) && dataset.plannedTiers.length > 0, `${context}: plannedTiers must be non-empty`);
@@ -125,6 +208,13 @@ function validateShape(candidateCatalog) {
       knownAnswerIds.add(knownAnswer.id);
       assertEnum(knownAnswer.authority, enumValues(knownAnswerSchema, 'authority'), `${context}.${knownAnswer.id}.authority`);
       validateTolerance(knownAnswer.tolerance, `${context}.${knownAnswer.id}.tolerance`);
+      if (knownAnswer.verification) {
+        validateKnownAnswerVerification(
+          knownAnswer.verification,
+          fieldNames,
+          `${context}.${knownAnswer.id}.verification`,
+        );
+      }
     }
 
     const artifactPaths = new Set();
@@ -158,6 +248,23 @@ function validateShape(candidateCatalog) {
     if (dataset.governanceState === 'candidate') {
       assert(dataset.contentDigest == null, `${context}: candidate dataset must not claim a governed contentDigest`);
     }
+
+    if (dataset.semanticFixtureFamily) {
+      assert(dataset.governanceState === 'governed', `${context}: semantic fixture must be governed`);
+      assert((dataset.knownAnswers ?? []).length > 0, `${context}: semantic fixture must declare known answers`);
+      assert(
+        dataset.knownAnswers.every((answer) => answer.verification),
+        `${context}: every semantic-fixture known answer requires structured verification`,
+      );
+      assert(
+        dataset.artifacts.filter((artifact) => artifact.role === 'primary').length === 1,
+        `${context}: semantic fixture requires exactly one primary artifact`,
+      );
+    }
+  }
+
+  for (const family of enumValues(datasetSchema, 'semanticFixtureFamily')) {
+    assert(semanticFixtureFamilies.has(family), `catalog: missing semantic fixture family ${family}`);
   }
 }
 
@@ -181,6 +288,60 @@ async function validateMaterialization(dataset) {
         const header = (lines[0] ?? '').split(',');
         const declared = dataset.measurementSchema.fields.map((field) => field.name);
         assert(JSON.stringify(header) === JSON.stringify(declared), `${context}: CSV header does not match declared measurement fields for ${artifact.path}`);
+      }
+    } else if (artifact.format === 'json' && dataset.semanticFixtureFamily === 'source-relationship-graph') {
+      const value = JSON.parse(bytes.toString('utf8'));
+      assert(Array.isArray(value.columns), `${context}: graph DatasetJSON columns required`);
+      assert(Array.isArray(value.rows), `${context}: graph DatasetJSON rows required`);
+      assert(Array.isArray(value.rowIds), `${context}: graph DatasetJSON rowIds required`);
+      assert(Array.isArray(value.edges), `${context}: graph DatasetJSON edges required`);
+      assert(value.rows.length === artifact.rows, `${context}: graph DatasetJSON row count mismatch`);
+      assert(value.rowIds.length === value.rows.length, `${context}: graph DatasetJSON rowIds length mismatch`);
+      assert(new Set(value.rowIds).size === value.rowIds.length, `${context}: graph DatasetJSON rowIds must be unique`);
+      const declared = dataset.measurementSchema.fields.map((field) => field.name);
+      assert(
+        JSON.stringify(value.columns.map((column) => column.name)) === JSON.stringify(declared),
+        `${context}: graph DatasetJSON columns do not match declared measurement fields`,
+      );
+      const columnTypes = new Set(['NUMERIC', 'CATEGORICAL', 'TEMPORAL', 'TEXT', 'UNKNOWN']);
+      assert(
+        value.columns.every((column) => columnTypes.has(column.type)),
+        `${context}: graph DatasetJSON column type is invalid`,
+      );
+      for (const [index, row] of value.rows.entries()) {
+        assert(row && typeof row === 'object' && !Array.isArray(row), `${context}: graph row ${index} must be an object`);
+        assert(
+          Object.keys(row).length === declared.length && declared.every((field) => Object.hasOwn(row, field)),
+          `${context}: graph row ${index} fields do not match declared measurement fields`,
+        );
+        for (const field of dataset.measurementSchema.fields) {
+          const cell = row[field.name];
+          if (cell === null) {
+            assert(field.nullable, `${context}: graph row ${index}.${field.name} is unexpectedly null`);
+          } else if (field.storageType === 'integer') {
+            assert(Number.isSafeInteger(cell), `${context}: graph row ${index}.${field.name} must be a safe integer`);
+          } else if (field.storageType === 'number') {
+            assert(typeof cell === 'number' && Number.isFinite(cell), `${context}: graph row ${index}.${field.name} must be finite numeric`);
+          } else if (field.storageType === 'boolean') {
+            assert(typeof cell === 'boolean', `${context}: graph row ${index}.${field.name} must be boolean`);
+          } else {
+            assert(typeof cell === 'string' && cell.length > 0, `${context}: graph row ${index}.${field.name} must be a non-empty string`);
+          }
+        }
+      }
+      const rowIds = new Set(value.rowIds);
+      const endpointExists = (endpoint) => (
+        typeof endpoint === 'string'
+          ? rowIds.has(endpoint)
+          : Number.isSafeInteger(endpoint) && endpoint >= 0 && endpoint < value.rows.length
+      );
+      for (const [index, edge] of value.edges.entries()) {
+        assert(edge && typeof edge === 'object' && !Array.isArray(edge), `${context}: graph edge ${index} must be an object`);
+        assert(endpointExists(edge.source), `${context}: graph edge ${index} has unknown source endpoint`);
+        assert(endpointExists(edge.target), `${context}: graph edge ${index} has unknown target endpoint`);
+        if (Object.hasOwn(edge, 'weight')) {
+          assert(typeof edge.weight === 'number' && Number.isFinite(edge.weight), `${context}: graph edge ${index} weight must be finite`);
+        }
       }
     }
 
@@ -270,9 +431,32 @@ expectShapeFailure('candidate claims governed digest', (sample) => {
 expectShapeFailure('artifact path traversal', (sample) => {
   sample.datasets[0].artifacts[0].path = '../outside.csv';
 });
+expectShapeFailure('unknown known-answer verification operation', (sample) => {
+  sample.datasets.find((dataset) => dataset.semanticFixtureFamily).knownAnswers[0].verification.operation = 'invented-statistic';
+});
+expectShapeFailure('known-answer verification names unknown field', (sample) => {
+  const dataset = sample.datasets.find((candidate) => candidate.semanticFixtureFamily === 'aggregate');
+  dataset.knownAnswers.find((answer) => answer.id === 'total-sum').verification.field = 'missing_field';
+});
+expectShapeFailure('known-answer verification carries unknown property', (sample) => {
+  const dataset = sample.datasets.find((candidate) => candidate.semanticFixtureFamily === 'aggregate');
+  dataset.knownAnswers[0].verification.silentFallback = true;
+});
+expectShapeFailure('known-answer verification carries irrelevant property', (sample) => {
+  const dataset = sample.datasets.find((candidate) => candidate.semanticFixtureFamily === 'aggregate');
+  dataset.knownAnswers.find((answer) => answer.id === 'total-sum').verification.fields = ['value'];
+});
+expectShapeFailure('duplicate semantic fixture family', (sample) => {
+  const distribution = sample.datasets.find((candidate) => candidate.semanticFixtureFamily === 'empirical-distribution');
+  distribution.semanticFixtureFamily = 'aggregate';
+});
+expectShapeFailure('exact tolerance carries ignored numeric bound', (sample) => {
+  const dataset = sample.datasets.find((candidate) => candidate.semanticFixtureFamily === 'aggregate');
+  dataset.knownAnswers[0].tolerance.value = 0;
+});
 
 const governed = catalog.datasets.filter((dataset) => dataset.governanceState === 'governed').length;
 const candidates = catalog.datasets.filter((dataset) => dataset.governanceState === 'candidate').length;
 const artifacts = catalog.datasets.reduce((sum, dataset) => sum + dataset.artifacts.length, 0);
 console.log(`validated ${catalog.datasets.length} datasets (${governed} governed, ${candidates} candidate), ${artifacts} materialized artifacts, schema ${catalog.schemaVersion}, corpus ${catalog.corpusVersion}`);
-console.log('negative contract self-tests: 12 passed');
+console.log('negative contract self-tests: 18 passed');
