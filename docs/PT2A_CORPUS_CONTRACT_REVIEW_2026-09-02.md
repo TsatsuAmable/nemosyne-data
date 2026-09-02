@@ -1,15 +1,15 @@
-# PT2A corpus contract pre-review
+# PT2A corpus contract adversarial review
 
 **Date:** 2 September 2026  
 **Base:** `main@4c69c13dfc10da8d59d88ae5cae5a4d4dfa5779a`  
 **Branch:** `feat/pt2a-corpus-contract`  
-**Status:** PRE-IMPLEMENTATION ADVERSARIAL CONTRACT
+**Status:** IMPLEMENTATION LANDED / REVIEW ACTIVE
 
 ## Purpose
 
 PT2A freezes the machine-readable contract that later known-answer, metamorphic and NIL corpus tranches must satisfy. It does not yet claim the PT2 corpus family set is complete.
 
-The existing repository already verifies artifact byte counts, row counts and SHA-256 values, but its dataset semantics are mostly implicit in `manifests/catalog.json` and `scripts/validate-catalog.mjs`. That is insufficient for Nemosyne's scientific boundary because storage type alone does not establish valid operations, candidate real datasets are not distinguished mechanically from governed materialized fixtures, and expected quantities lack a uniform tolerance/derivation contract.
+The existing repository already verified artifact byte counts, row counts and SHA-256 values, but its dataset semantics were mostly implicit in `manifests/catalog.json` and `scripts/validate-catalog.mjs`. That was insufficient for Nemosyne's scientific boundary because storage type alone does not establish valid operations, candidate real datasets were not distinguished mechanically from governed materialized fixtures, and expected quantities lacked a uniform tolerance/derivation contract.
 
 ## Authority boundaries
 
@@ -27,7 +27,7 @@ A governed materialized dataset must declare:
 - source/privacy/licensing state;
 - provenance and transformations;
 - intended verification/product uses;
-- declared field storage types **and measurement scales**;
+- declared storage type, measurement scale and semantic type for every field;
 - artifact path, row count, byte count and SHA-256;
 - known-answer claims, when present, with expected value, tolerance, authority class and derivation note.
 
@@ -43,19 +43,31 @@ The stored form is `sha256:<hex>`. This digest identifies the exact set of mater
 
 ## Measurement semantics
 
-PT2A distinguishes at least:
+Adversarial review found that the first draft incorrectly mixed Stevens-style scale levels with semantic domains. That would have encoded exactly the category error this contract is intended to prevent. The contract was fixed forward into three orthogonal axes:
 
-- identifier;
-- nominal;
-- ordinal;
-- interval;
-- ratio;
-- circular;
-- temporal;
-- compositional;
-- geospatial.
+- `storageType`: integer, number, string, boolean or timestamp;
+- `measurementScale`: `none`, nominal, ordinal, interval or ratio;
+- `semanticType`: identifier, categorical, quantitative, temporal, circular, compositional-part or geospatial-coordinate.
 
-This is intentionally stricter than inferring semantics from CSV/JSON storage representation.
+This permits, for example, a temporal timestamp with interval scale and an integer-encoded cluster label with nominal categorical semantics. Storage representation alone never grants analytical permission.
+
+## Review findings fixed forward
+
+### 1. Repository-root normalization
+
+The first implementation retained a trailing separator in its repository root and then appended another separator in the lexical confinement check. Review caught the mismatch before promotion and normalized the root with `path.resolve`.
+
+### 2. Symlink escape risk
+
+A lexical `path.resolve` prefix test cannot prevent a repository-controlled parent-directory symlink from resolving outside the repository. The validator now resolves the canonical target with `realpath`, requires it to remain under the canonical repository root, rejects final symlink files and requires regular files.
+
+### 3. Source-manifest identity drift
+
+Merely checking that a source manifest exists would allow a catalogue dataset to point at a manifest describing a different dataset. JSON source manifests now have their declared `datasetId` checked against the catalogue dataset, and declared licence metadata is cross-checked when present.
+
+### 4. Formal schema and executable validator drift
+
+The executable validator reads the core required-field, enum and pattern definitions from the formal JSON Schema rather than duplicating them wholesale. Negative checks cover invalid measurement scale and semantic type as well as duplicate dataset, field, known-answer and artifact identities.
 
 ## Falsifiers
 
@@ -65,12 +77,13 @@ Reject or fix forward if any of these are possible:
 2. A governed dataset passes with missing measurement semantics.
 3. Artifact bytes, row count or SHA-256 can disagree with the repository file while validation remains green.
 4. Dataset content digest can disagree with the declared artifact set while validation remains green.
-5. Duplicate dataset IDs or duplicate field names pass.
-6. A source/artifact path can escape the repository root.
+5. Duplicate dataset, field, known-answer or artifact identities pass.
+6. A source/artifact path can escape the canonical repository root, including through symlink resolution.
 7. A candidate real dataset is silently treated as governed evidence.
 8. A known-answer claim can omit its tolerance, authority or derivation.
 9. The validator imports Nemosyne application/runtime code or requires Nemosyne to compute its own expected answers.
 10. The formal JSON Schema and executable validator disagree on the core required fields/enums used by this tranche.
+11. Measurement scale and semantic domain are collapsed into a single field taxonomy.
 
 ## Non-goals
 
@@ -85,7 +98,7 @@ Reject or fix forward if any of these are possible:
 
 - existing materialized synthetic fixtures migrate to the governed contract without changing their bytes;
 - candidate real sources remain explicitly non-governed;
-- validator checks schema-shape invariants, path confinement, artifact identity, dataset digest and CSV field names;
-- negative self-tests prove representative malformed manifests fail closed;
+- validator checks schema-shape invariants, canonical path confinement, artifact identity, dataset digest, CSV field names and source-manifest identity;
+- eleven negative self-tests prove representative malformed manifests fail closed;
 - CI runs the independent validator on the exact branch head;
-- post-implementation adversarial review records ADOPT/TARGETED/REJECT before merge.
+- post-implementation disposition is promoted to ADOPT only after the unchanged final head is green and the final diff is re-read.
