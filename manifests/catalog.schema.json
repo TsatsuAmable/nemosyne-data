@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://nemosyne.world/schemas/nemosyne-data/catalog-2.0.schema.json",
+  "$id": "https://nemosyne.world/schemas/nemosyne-data/catalog-2.1.schema.json",
   "title": "Nemosyne governed dataset catalogue",
   "type": "object",
   "additionalProperties": false,
   "required": ["schemaVersion", "corpusVersion", "repository", "tierRows", "datasets"],
   "properties": {
-    "schemaVersion": { "const": "2.0" },
+    "schemaVersion": { "const": "2.1" },
     "corpusVersion": { "type": "string", "minLength": 1 },
     "repository": { "const": "TsatsuAmable/nemosyne-data" },
     "tierRows": {
@@ -15,7 +15,34 @@
     },
     "datasets": {
       "type": "array",
-      "items": { "$ref": "#/$defs/dataset" }
+      "items": { "$ref": "#/$defs/dataset" },
+      "allOf": [
+        {
+          "contains": { "required": ["semanticFixtureFamily"], "properties": { "semanticFixtureFamily": { "const": "aggregate" } } },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": { "required": ["semanticFixtureFamily"], "properties": { "semanticFixtureFamily": { "const": "empirical-distribution" } } },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": { "required": ["semanticFixtureFamily"], "properties": { "semanticFixtureFamily": { "const": "binned-density" } } },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": { "required": ["semanticFixtureFamily"], "properties": { "semanticFixtureFamily": { "const": "source-partition-cluster" } } },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": { "required": ["semanticFixtureFamily"], "properties": { "semanticFixtureFamily": { "const": "source-relationship-graph" } } },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      ]
     }
   },
   "$defs": {
@@ -34,6 +61,15 @@
         "kind": { "enum": ["synthetic", "real"] },
         "description": { "type": "string", "minLength": 1 },
         "topology": { "type": "string", "minLength": 1 },
+        "semanticFixtureFamily": {
+          "enum": [
+            "aggregate",
+            "empirical-distribution",
+            "binned-density",
+            "source-partition-cluster",
+            "source-relationship-graph"
+          ]
+        },
         "governanceState": { "enum": ["candidate", "governed", "retired"] },
         "contentDigest": {
           "type": ["string", "null"],
@@ -90,6 +126,29 @@
           },
           "then": {
             "properties": { "contentDigest": { "type": "null" } }
+          }
+        },
+        {
+          "if": { "required": ["semanticFixtureFamily"] },
+          "then": {
+            "required": ["knownAnswers"],
+            "properties": {
+              "governanceState": { "const": "governed" },
+              "knownAnswers": {
+                "minItems": 1,
+                "items": {
+                  "allOf": [
+                    { "$ref": "#/$defs/knownAnswer" },
+                    { "required": ["verification"] }
+                  ]
+                }
+              },
+              "artifacts": {
+                "contains": { "required": ["role"], "properties": { "role": { "const": "primary" } } },
+                "minContains": 1,
+                "maxContains": 1
+              }
+            }
           }
         }
       ]
@@ -164,8 +223,68 @@
         "expected": {},
         "tolerance": { "$ref": "#/$defs/tolerance" },
         "authority": { "enum": ["analytical-derivation", "independent-reference", "source-authoritative"] },
-        "derivation": { "type": "string", "minLength": 1 }
+        "derivation": { "type": "string", "minLength": 1 },
+        "verification": { "$ref": "#/$defs/knownAnswerVerification" }
       }
+    },
+    "knownAnswerVerification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operation"],
+      "properties": {
+        "operation": {
+          "enum": [
+            "row-count",
+            "sum",
+            "mean",
+            "range",
+            "quantile-r7",
+            "group-counts",
+            "group-sums",
+            "group-means",
+            "graph-node-count",
+            "graph-edge-count",
+            "graph-weak-component-count",
+            "graph-degree-range",
+            "graph-row-id-field-alignment"
+          ]
+        },
+        "field": { "type": "string", "minLength": 1 },
+        "fields": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "groupBy": { "type": "string", "minLength": 1 },
+        "probability": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "operation": { "enum": ["sum", "mean", "range", "quantile-r7"] } } },
+          "then": { "required": ["field"] }
+        },
+        {
+          "if": { "properties": { "operation": { "const": "graph-row-id-field-alignment" } } },
+          "then": { "required": ["field"] }
+        },
+        {
+          "if": { "properties": { "operation": { "const": "quantile-r7" } } },
+          "then": { "required": ["probability"] }
+        },
+        {
+          "if": { "properties": { "operation": { "const": "group-counts" } } },
+          "then": { "required": ["fields"] }
+        },
+        {
+          "if": { "properties": { "operation": { "const": "group-sums" } } },
+          "then": { "required": ["groupBy", "field"] }
+        },
+        {
+          "if": { "properties": { "operation": { "const": "group-means" } } },
+          "then": { "required": ["groupBy", "fields"] }
+        }
+      ]
     },
     "tolerance": {
       "type": "object",
