@@ -3,7 +3,7 @@ import { readFile, stat } from 'node:fs/promises';
 import { resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const ROOT = fileURLToPath(new URL('..', import.meta.url));
+const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const catalogPath = resolve(ROOT, 'manifests/catalog.json');
 const schemaPath = resolve(ROOT, 'manifests/catalog.schema.json');
 const catalog = JSON.parse(await readFile(catalogPath, 'utf8'));
