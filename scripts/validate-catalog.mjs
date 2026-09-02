@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { readFile, stat } from 'node:fs/promises';
+import { lstat, readFile } from 'node:fs/promises';
 import { resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -46,6 +46,14 @@ function resolveRepositoryPath(relativePath, context) {
   const absolute = resolve(ROOT, relativePath);
   assert(absolute.startsWith(`${ROOT}${sep}`), `${context}: path escapes repository root`);
   return absolute;
+}
+
+async function requireRepositoryFile(relativePath, context) {
+  const path = resolveRepositoryPath(relativePath, context);
+  const metadata = await lstat(path);
+  assert(!metadata.isSymbolicLink(), `${context}: symlinks are not allowed for governed repository files`);
+  assert(metadata.isFile(), `${context}: regular file required`);
+  return { path, metadata };
 }
 
 function validateShape(candidateCatalog) {
@@ -109,6 +117,9 @@ function validateShape(candidateCatalog) {
     for (const sourcePath of [dataset.sourceManifest, dataset.license.sourceManifest, dataset.provenance.sourceManifest].filter(Boolean)) {
       resolveRepositoryPath(sourcePath, `${context}.sourceManifest`);
     }
+    if (dataset.provenance.generator) {
+      resolveRepositoryPath(dataset.provenance.generator, `${context}.provenance.generator`);
+    }
 
     if (dataset.governanceState === 'governed') {
       assert(dataset.artifacts.length > 0, `${context}: governed dataset must materialize at least one artifact`);
@@ -128,9 +139,8 @@ async function validateMaterialization(dataset) {
   const artifactIdentities = [];
 
   for (const artifact of dataset.artifacts) {
-    const path = resolveRepositoryPath(artifact.path, `${context}.${artifact.path}`);
+    const { path, metadata } = await requireRepositoryFile(artifact.path, `${context}.${artifact.path}`);
     const bytes = await readFile(path);
-    const metadata = await stat(path);
     const sha256 = createHash('sha256').update(bytes).digest('hex');
     assert(metadata.size === artifact.bytes, `${context}: byte mismatch for ${artifact.path}`);
     assert(sha256 === artifact.sha256, `${context}: sha256 mismatch for ${artifact.path}`);
@@ -150,9 +160,22 @@ async function validateMaterialization(dataset) {
     artifactIdentities.push(`${artifact.path}\0${artifact.sha256}\n`);
   }
 
-  for (const sourcePath of new Set([dataset.sourceManifest, dataset.license.sourceManifest, dataset.provenance.sourceManifest].filter(Boolean))) {
-    const path = resolveRepositoryPath(sourcePath, `${context}.sourceManifest`);
-    await stat(path);
+  const sourcePaths = new Set([dataset.sourceManifest, dataset.license.sourceManifest, dataset.provenance.sourceManifest].filter(Boolean));
+  for (const sourcePath of sourcePaths) {
+    const { path } = await requireRepositoryFile(sourcePath, `${context}.sourceManifest`);
+    if (sourcePath.endsWith('.json')) {
+      const source = JSON.parse(await readFile(path, 'utf8'));
+      if (Object.hasOwn(source, 'datasetId')) {
+        assert(source.datasetId === dataset.id, `${context}: source manifest ${sourcePath} belongs to ${source.datasetId}`);
+      }
+      if (sourcePath === dataset.license.sourceManifest && Object.hasOwn(source, 'license')) {
+        assert(source.license === dataset.license.name, `${context}: licence metadata disagrees with ${sourcePath}`);
+      }
+    }
+  }
+
+  if (dataset.provenance.generator) {
+    await requireRepositoryFile(dataset.provenance.generator, `${context}.provenance.generator`);
   }
 
   if (dataset.governanceState === 'governed') {
