@@ -29,7 +29,7 @@ A governed materialized dataset must declare:
 - intended verification/product uses;
 - declared storage type, measurement scale and semantic type for every field;
 - artifact path, row count, byte count and SHA-256;
-- known-answer claims, when present, with expected value, tolerance, authority class and derivation note.
+- known-answer claims, when present, with expected value, structured tolerance, authority class and derivation note.
 
 Candidate/unmaterialized real datasets may remain in the catalogue, but must be visibly classified as candidates and may not carry a governed content digest before acquisition and review.
 
@@ -51,6 +51,10 @@ Adversarial review found that the first draft incorrectly mixed Stevens-style sc
 
 This permits, for example, a temporal timestamp with interval scale and an integer-encoded cluster label with nominal categorical semantics. Storage representation alone never grants analytical permission.
 
+## Known-answer tolerance semantics
+
+A required field named `tolerance` is not sufficient if it can contain arbitrary JSON. Review tightened tolerance into a structured object with `kind` equal to `exact`, `absolute` or `relative`; absolute and relative tolerances require a finite non-negative numeric `value`. Current closed-form fixtures use `exact`.
+
 ## Review findings fixed forward
 
 ### 1. Repository-root normalization
@@ -67,7 +71,7 @@ Merely checking that a source manifest exists would allow a catalogue dataset to
 
 ### 4. Formal schema and executable validator drift
 
-The executable validator reads the core required-field, enum and pattern definitions from the formal JSON Schema rather than duplicating them wholesale. Negative checks cover invalid measurement scale and semantic type as well as duplicate dataset, field, known-answer and artifact identities.
+The executable validator reads the core required-field, enum and pattern definitions from the formal JSON Schema rather than duplicating them wholesale. Negative checks cover invalid measurement scale and semantic type, invalid tolerance shape, and duplicate dataset, field, known-answer and artifact identities.
 
 ## Falsifiers
 
@@ -80,10 +84,11 @@ Reject or fix forward if any of these are possible:
 5. Duplicate dataset, field, known-answer or artifact identities pass.
 6. A source/artifact path can escape the canonical repository root, including through symlink resolution.
 7. A candidate real dataset is silently treated as governed evidence.
-8. A known-answer claim can omit its tolerance, authority or derivation.
+8. A known-answer claim can omit or null its tolerance, authority or derivation.
 9. The validator imports Nemosyne application/runtime code or requires Nemosyne to compute its own expected answers.
 10. The formal JSON Schema and executable validator disagree on the core required fields/enums used by this tranche.
 11. Measurement scale and semantic domain are collapsed into a single field taxonomy.
+12. Numeric approximate answers can declare an absolute/relative tolerance without a finite non-negative bound.
 
 ## Non-goals
 
@@ -98,7 +103,7 @@ Reject or fix forward if any of these are possible:
 
 - existing materialized synthetic fixtures migrate to the governed contract without changing their bytes;
 - candidate real sources remain explicitly non-governed;
-- validator checks schema-shape invariants, canonical path confinement, artifact identity, dataset digest, CSV field names and source-manifest identity;
-- eleven negative self-tests prove representative malformed manifests fail closed;
+- validator checks schema-shape invariants, canonical path confinement, artifact identity, dataset digest, CSV field names, source-manifest identity and known-answer tolerance semantics;
+- twelve negative self-tests prove representative malformed manifests fail closed;
 - CI runs the independent validator on the exact branch head;
 - post-implementation disposition is promoted to ADOPT only after the unchanged final head is green and the final diff is re-read.
