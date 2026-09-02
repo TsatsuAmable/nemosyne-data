@@ -13,6 +13,7 @@ const schema = JSON.parse(await readFile(schemaPath, 'utf8'));
 const datasetSchema = schema.$defs?.dataset;
 const fieldSchema = schema.$defs?.field;
 const knownAnswerSchema = schema.$defs?.knownAnswer;
+const toleranceSchema = schema.$defs?.tolerance;
 const artifactSchema = schema.$defs?.artifact;
 
 function fail(message) {
@@ -62,6 +63,14 @@ async function requireRepositoryFile(relativePath, context) {
   const canonical = await realpath(path);
   assert(canonical.startsWith(`${REAL_ROOT}${sep}`), `${context}: canonical path escapes repository root`);
   return { path, metadata };
+}
+
+function validateTolerance(tolerance, context) {
+  required(tolerance, toleranceSchema.required, context);
+  assertEnum(tolerance.kind, enumValues(toleranceSchema, 'kind'), `${context}.kind`);
+  if (tolerance.kind === 'absolute' || tolerance.kind === 'relative') {
+    assert(typeof tolerance.value === 'number' && Number.isFinite(tolerance.value) && tolerance.value >= 0, `${context}.value must be a finite non-negative number`);
+  }
 }
 
 function validateShape(candidateCatalog) {
@@ -115,6 +124,7 @@ function validateShape(candidateCatalog) {
       assert(!knownAnswerIds.has(knownAnswer.id), `${context}: duplicate known-answer id ${knownAnswer.id}`);
       knownAnswerIds.add(knownAnswer.id);
       assertEnum(knownAnswer.authority, enumValues(knownAnswerSchema, 'authority'), `${context}.${knownAnswer.id}.authority`);
+      validateTolerance(knownAnswer.tolerance, `${context}.${knownAnswer.id}.tolerance`);
     }
 
     const artifactPaths = new Set();
@@ -251,6 +261,9 @@ expectShapeFailure('duplicate artifact path', (sample) => {
 expectShapeFailure('known answer without tolerance', (sample) => {
   delete sample.datasets[0].knownAnswers[0].tolerance;
 });
+expectShapeFailure('known answer with null tolerance', (sample) => {
+  sample.datasets[0].knownAnswers[0].tolerance = null;
+});
 expectShapeFailure('candidate claims governed digest', (sample) => {
   sample.datasets.at(-1).contentDigest = 'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 });
@@ -262,4 +275,4 @@ const governed = catalog.datasets.filter((dataset) => dataset.governanceState ==
 const candidates = catalog.datasets.filter((dataset) => dataset.governanceState === 'candidate').length;
 const artifacts = catalog.datasets.reduce((sum, dataset) => sum + dataset.artifacts.length, 0);
 console.log(`validated ${catalog.datasets.length} datasets (${governed} governed, ${candidates} candidate), ${artifacts} materialized artifacts, schema ${catalog.schemaVersion}, corpus ${catalog.corpusVersion}`);
-console.log('negative contract self-tests: 11 passed');
+console.log('negative contract self-tests: 12 passed');
