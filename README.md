@@ -12,7 +12,7 @@ Requires Node.js 22 or newer and no package dependencies:
 npm run validate
 ```
 
-Validation checks the machine-readable contract in `manifests/catalog.schema.json`, repository-path confinement, dataset/artifact identity, byte and row counts, SHA-256 values, declared CSV fields, governed dataset content digests, and a set of fail-closed negative contract cases.
+Validation checks the machine-readable contract in `manifests/catalog.schema.json`, canonical repository-path confinement, dataset/artifact identity, byte and row counts, SHA-256 values, declared CSV fields, governed dataset content digests, source-manifest alignment, and fail-closed negative contract cases.
 
 ## Governance states
 
@@ -34,7 +34,13 @@ The stored form is `sha256:<hex>`.
 
 ## Measurement semantics
 
-The v2 contract records storage type separately from measurement scale. Supported scales currently include identifier, nominal, ordinal, interval, ratio, circular, temporal, compositional and geospatial. This prevents consumers from treating a CSV number as permission to apply arbitrary numerical operations.
+The v2 contract keeps three separate questions separate:
+
+- `storageType`: how a value is encoded, such as integer, number, string, boolean or timestamp;
+- `measurementScale`: which scale-level operations are defensible, currently `none`, `nominal`, `ordinal`, `interval` or `ratio`;
+- `semanticType`: what domain semantics the field carries, currently identifier, categorical, quantitative, temporal, circular, compositional-part or geospatial-coordinate.
+
+These axes are deliberately orthogonal. A timestamp can have temporal semantics while using an interval scale; a cluster label can be stored as an integer while remaining nominal categorical data. Consumers must not infer scientific permissions from storage representation alone.
 
 ## Known answers
 
