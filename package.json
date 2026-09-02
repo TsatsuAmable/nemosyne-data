@@ -9,6 +9,7 @@
   "scripts": {
     "generate:synthetic": "node scripts/generate-synthetic.mjs",
     "generate:known-answers": "node scripts/generate-known-answers.mjs",
+    "generate:metamorphic-nil": "node scripts/generate-metamorphic-nil.mjs",
     "validate": "npm run validate:catalog && npm run validate:known-answers",
     "validate:catalog": "node scripts/validate-catalog.mjs",
     "validate:known-answers": "node scripts/validate-known-answers.mjs"

@@ -188,6 +188,7 @@ function validateRecipe(verification, dataset, context) {
   assert(verification && typeof verification === 'object' && !Array.isArray(verification), `${context}: verification object required`);
   const allowedPropertiesByOperation = {
     'row-count': ['operation'],
+    'distinct-count': ['operation', 'field'],
     sum: ['operation', 'field'],
     mean: ['operation', 'field'],
     range: ['operation', 'field'],
@@ -283,6 +284,8 @@ function evaluate(verification, materialized, context) {
   switch (verification.operation) {
     case 'row-count':
       return rows.length;
+    case 'distinct-count':
+      return new Set(rows.map((row) => row[verification.field])).size;
     case 'sum':
       return numericValues(rows, verification.field, context).reduce((sum, value) => sum + value, 0);
     case 'mean': {
@@ -379,6 +382,90 @@ async function expectFailure(name, action) {
   assert(failed, `negative known-answer self-test did not fail closed: ${name}`);
 }
 
+function encodedMultiset(values) {
+  return values.map((value) => JSON.stringify(canonical(value))).sort();
+}
+
+function graphEdgesByIdentity(graph) {
+  return encodedMultiset(graph.edges.map((edge) => ({
+    ...edge,
+    source: normalizeEndpoint(edge.source, graph),
+    target: normalizeEndpoint(edge.target, graph),
+  })));
+}
+
+function assertSameEncoded(left, right, context) {
+  assert(JSON.stringify(left) === JSON.stringify(right), `${context}: complete structural identity mismatch`);
+}
+
+function validateMetamorphicStructure(base, variant, baseMaterialized, variantMaterialized) {
+  const context = `dataset ${variant.id}.metamorphicRelation`;
+  const relation = variant.metamorphicRelation;
+  assert(relation.baseDatasetId === base.id, `${context}: base dataset identity mismatch`);
+  assert(relation.baseContentDigest === base.contentDigest, `${context}: base content digest mismatch`);
+  const baseAnswerIds = base.knownAnswers.map((answer) => answer.id).sort();
+  assertSameEncoded([...relation.preservedKnownAnswerIds].sort(), baseAnswerIds, `${context}: preserved answer IDs`);
+
+  const baseFields = base.measurementSchema.fields.map((field) => field.name);
+  const variantFields = variant.measurementSchema.fields.map((field) => field.name);
+  if (relation.kind === 'row-permutation') {
+    assertSameEncoded(variant.measurementSchema.fields, base.measurementSchema.fields, `${context}: measurement schema`);
+    if (baseMaterialized.graph) {
+      assert(variantMaterialized.graph, `${context}: graph variant required`);
+      const basePairs = baseMaterialized.graph.rows.map((row, index) => ({
+        rowId: baseMaterialized.graph.rowIds[index],
+        row,
+      }));
+      const variantPairs = variantMaterialized.graph.rows.map((row, index) => ({
+        rowId: variantMaterialized.graph.rowIds[index],
+        row,
+      }));
+      assertSameEncoded(encodedMultiset(variantPairs), encodedMultiset(basePairs), `${context}: durable row/ID multiset`);
+      assert(
+        JSON.stringify(variantPairs) !== JSON.stringify(basePairs),
+        `${context}: row-permutation variant did not change paired row order`,
+      );
+      assertSameEncoded(
+        graphEdgesByIdentity(variantMaterialized.graph),
+        graphEdgesByIdentity(baseMaterialized.graph),
+        `${context}: source-edge identity multiset`,
+      );
+    } else {
+      assertSameEncoded(
+        encodedMultiset(variantMaterialized.rows),
+        encodedMultiset(baseMaterialized.rows),
+        `${context}: complete row multiset`,
+      );
+      assert(
+        JSON.stringify(variantMaterialized.rows) !== JSON.stringify(baseMaterialized.rows),
+        `${context}: row-permutation variant did not change row order`,
+      );
+    }
+    return;
+  }
+
+  assert(relation.kind === 'irrelevant-column-addition', `${context}: unknown relation kind ${relation.kind}`);
+  assertSameEncoded(variantFields.slice(0, baseFields.length), baseFields, `${context}: base field prefix`);
+  assertSameEncoded(variantFields.slice(baseFields.length), relation.addedFields, `${context}: added fields`);
+  assert(variantMaterialized.rows.length === baseMaterialized.rows.length, `${context}: row count changed`);
+  const projected = variantMaterialized.rows.map((row) => Object.fromEntries(baseFields.map((field) => [field, row[field]])));
+  assertSameEncoded(projected, baseMaterialized.rows, `${context}: ordered base-field projection`);
+  for (const [index, row] of variantMaterialized.rows.entries()) {
+    for (const field of relation.addedFields) {
+      assert(Object.hasOwn(row, field) && row[field] !== null, `${context}: missing added field ${field} at row ${index}`);
+    }
+  }
+  if (baseMaterialized.graph) {
+    assert(variantMaterialized.graph, `${context}: graph variant required`);
+    assertSameEncoded(variantMaterialized.graph.rowIds, baseMaterialized.graph.rowIds, `${context}: durable row IDs`);
+    assertSameEncoded(
+      graphEdgesByIdentity(variantMaterialized.graph),
+      graphEdgesByIdentity(baseMaterialized.graph),
+      `${context}: source-edge identity multiset`,
+    );
+  }
+}
+
 const fixtures = catalog.datasets.filter((dataset) => dataset.semanticFixtureFamily);
 const requiredFamilies = [
   'aggregate',
@@ -389,6 +476,7 @@ const requiredFamilies = [
 ];
 const seenFamilies = new Set();
 let verifiedAnswers = 0;
+let verifiedMetamorphicAnswers = 0;
 const materializedById = new Map();
 
 for (const dataset of fixtures) {
@@ -412,6 +500,71 @@ assert(
   requiredFamilies.every((family) => seenFamilies.has(family)) && seenFamilies.size === requiredFamilies.length,
   `PT2B semantic family coverage mismatch: ${[...seenFamilies].sort().join(', ')}`,
 );
+
+const fixtureById = new Map(fixtures.map((dataset) => [dataset.id, dataset]));
+const variants = catalog.datasets.filter((dataset) => dataset.metamorphicRelation);
+const relationKindsByBase = new Map();
+for (const variant of variants) {
+  const relation = variant.metamorphicRelation;
+  const base = fixtureById.get(relation.baseDatasetId);
+  assert(base, `dataset ${variant.id}: relation must target a direct PT2B semantic fixture`);
+  const kinds = relationKindsByBase.get(base.id) ?? new Set();
+  assert(!kinds.has(relation.kind), `dataset ${variant.id}: duplicate ${relation.kind} variant for ${base.id}`);
+  kinds.add(relation.kind);
+  relationKindsByBase.set(base.id, kinds);
+
+  const variantMaterialized = await loadDataset(variant);
+  materializedById.set(variant.id, variantMaterialized);
+  validateMetamorphicStructure(base, variant, materializedById.get(base.id), variantMaterialized);
+  for (const answerId of relation.preservedKnownAnswerIds) {
+    const answer = base.knownAnswers.find((candidate) => candidate.id === answerId);
+    assert(answer, `dataset ${variant.id}: unknown preserved answer ${answerId}`);
+    const context = `dataset ${variant.id} preserves ${base.id}.${answer.id}`;
+    validateRecipe(answer.verification, variant, context);
+    const actual = evaluate(answer.verification, variantMaterialized, context);
+    assertExpected(actual, answer, context);
+    verifiedMetamorphicAnswers += 1;
+  }
+}
+
+assert(variants.length === fixtures.length * 2, `PT2C variant count mismatch: ${variants.length}`);
+for (const fixture of fixtures) {
+  const kinds = relationKindsByBase.get(fixture.id) ?? new Set();
+  assert(
+    kinds.size === 2 && kinds.has('row-permutation') && kinds.has('irrelevant-column-addition'),
+    `dataset ${fixture.id}: both direct PT2C variants are required`,
+  );
+}
+
+const expectationDatasets = catalog.datasets.filter((dataset) => dataset.representationExpectation);
+assert(expectationDatasets.length === 1, `PT2C requires exactly one representation expectation, found ${expectationDatasets.length}`);
+const nilDataset = expectationDatasets[0];
+const nilMaterialized = await loadDataset(nilDataset);
+materializedById.set(nilDataset.id, nilMaterialized);
+const nilActualByAnswerId = new Map();
+for (const answer of nilDataset.knownAnswers) {
+  const context = `dataset ${nilDataset.id}.${answer.id}`;
+  validateRecipe(answer.verification, nilDataset, context);
+  const actual = evaluate(answer.verification, nilMaterialized, context);
+  assertExpected(actual, answer, context);
+  nilActualByAnswerId.set(answer.id, actual);
+  verifiedAnswers += 1;
+}
+const expectation = nilDataset.representationExpectation;
+assert(expectation.expectedOutcome === 'NIL', `dataset ${nilDataset.id}: expected outcome must remain NIL`);
+assert(expectation.evidenceStatus === 'requires-production-path', `dataset ${nilDataset.id}: corpus cannot claim product-path verification`);
+assert(expectation.task === 'simultaneous-individual-inspection', `dataset ${nilDataset.id}: NIL task must remain scoped`);
+assert(expectation.observationLevel === 'individual', `dataset ${nilDataset.id}: individual observation level required`);
+assertSameEncoded(expectation.requiredInformation, ['individual-observation-identity'], `dataset ${nilDataset.id}: required information`);
+for (const basisId of expectation.basisKnownAnswerIds) {
+  assert(nilActualByAnswerId.has(basisId), `dataset ${nilDataset.id}: unverified NIL basis ${basisId}`);
+  assert(
+    nilActualByAnswerId.get(basisId) > (
+      expectation.constraints.maxConcurrentElements * expectation.constraints.maxObservationIdentitiesPerElement
+    ),
+    `dataset ${nilDataset.id}: NIL basis ${basisId} does not exceed simultaneous identity capacity`,
+  );
+}
 
 const aggregate = fixtures.find((dataset) => dataset.semanticFixtureFamily === 'aggregate');
 const graph = fixtures.find((dataset) => dataset.semanticFixtureFamily === 'source-relationship-graph');
@@ -453,5 +606,59 @@ await expectFailure('exact tolerance with ignored bound', async () => {
   assertExpected(2500, answer, 'ignored exact bound');
 });
 
-console.log(`verified ${verifiedAnswers} known answers across ${fixtures.length} semantic fixture families`);
-console.log('negative known-answer self-tests: 7 passed');
+const aggregatePermutation = variants.find((dataset) => (
+  dataset.metamorphicRelation.baseDatasetId === aggregate.id &&
+  dataset.metamorphicRelation.kind === 'row-permutation'
+));
+const aggregateIrrelevant = variants.find((dataset) => (
+  dataset.metamorphicRelation.baseDatasetId === aggregate.id &&
+  dataset.metamorphicRelation.kind === 'irrelevant-column-addition'
+));
+const graphPermutation = variants.find((dataset) => (
+  dataset.metamorphicRelation.baseDatasetId === graph.id &&
+  dataset.metamorphicRelation.kind === 'row-permutation'
+));
+assert(aggregatePermutation && aggregateIrrelevant && graphPermutation, 'PT2C negative-test variants required');
+
+await expectFailure('metamorphic base digest drift', async () => {
+  const variant = structuredClone(aggregatePermutation);
+  variant.metamorphicRelation.baseContentDigest = 'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+  validateMetamorphicStructure(
+    aggregate,
+    variant,
+    materializedById.get(aggregate.id),
+    materializedById.get(aggregatePermutation.id),
+  );
+});
+await expectFailure('row permutation changes a complete row', async () => {
+  const materialized = structuredClone(materializedById.get(aggregatePermutation.id));
+  materialized.rows[0].value += 1;
+  validateMetamorphicStructure(aggregate, aggregatePermutation, materializedById.get(aggregate.id), materialized);
+});
+await expectFailure('irrelevant column variant changes projected base field', async () => {
+  const materialized = structuredClone(materializedById.get(aggregateIrrelevant.id));
+  materialized.rows[0].group = 'drifted-group';
+  validateMetamorphicStructure(aggregate, aggregateIrrelevant, materializedById.get(aggregate.id), materialized);
+});
+await expectFailure('graph permutation drifts durable row ID pairing', async () => {
+  const materialized = structuredClone(materializedById.get(graphPermutation.id));
+  [materialized.graph.rowIds[0], materialized.graph.rowIds[1]] = [materialized.graph.rowIds[1], materialized.graph.rowIds[0]];
+  materialized.rows = materialized.graph.rows;
+  validateMetamorphicStructure(graph, graphPermutation, materializedById.get(graph.id), materialized);
+});
+await expectFailure('NIL constraint does not exclude individual representation', async () => {
+  const altered = structuredClone(nilDataset);
+  altered.representationExpectation.constraints.maxConcurrentElements = 1000;
+  const basis = altered.representationExpectation.basisKnownAnswerIds[0];
+  assert(
+    nilActualByAnswerId.get(basis) > (
+      altered.representationExpectation.constraints.maxConcurrentElements *
+      altered.representationExpectation.constraints.maxObservationIdentitiesPerElement
+    ),
+    'altered NIL basis does not exceed simultaneous identity capacity',
+  );
+});
+
+console.log(`verified ${verifiedAnswers} direct known answers across ${fixtures.length} semantic fixture families plus the scoped NIL fixture`);
+console.log(`verified ${verifiedMetamorphicAnswers} preserved-answer executions across ${variants.length} metamorphic variants`);
+console.log('negative known-answer self-tests: 12 passed');
