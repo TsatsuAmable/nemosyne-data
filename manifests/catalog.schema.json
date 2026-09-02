@@ -162,10 +162,28 @@
         "id": { "type": "string", "minLength": 1 },
         "claim": { "type": "string", "minLength": 1 },
         "expected": {},
-        "tolerance": {},
+        "tolerance": { "$ref": "#/$defs/tolerance" },
         "authority": { "enum": ["analytical-derivation", "independent-reference", "source-authoritative"] },
         "derivation": { "type": "string", "minLength": 1 }
       }
+    },
+    "tolerance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": { "enum": ["exact", "absolute", "relative"] },
+        "value": { "type": "number", "minimum": 0 }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["kind"],
+            "properties": { "kind": { "enum": ["absolute", "relative"] } }
+          },
+          "then": { "required": ["value"] }
+        }
+      ]
     },
     "artifact": {
       "type": "object",
