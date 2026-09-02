@@ -14,10 +14,11 @@ npm run validate
 
 Validation checks the machine-readable contract in `manifests/catalog.schema.json`, canonical repository-path confinement, dataset/artifact identity, byte and row counts, SHA-256 values, declared CSV and graph DatasetJSON fields, governed dataset content digests, source-manifest alignment, independently recomputed known answers, and fail-closed negative contract cases.
 
-The PT2B known-answer fixtures can be regenerated deterministically with:
+The PT2B known-answer fixtures and PT2C metamorphic/NIL fixtures can be regenerated deterministically with:
 
 ```bash
 npm run generate:known-answers
+npm run generate:metamorphic-nil
 ```
 
 After regeneration, `npm run validate` must pass and the generated artifact paths must have no diff. Catalogue byte counts and digests are deliberate governed identity and are not rewritten automatically by the generator.
@@ -62,4 +63,10 @@ PT2B provides one governed fixture for each currently verified semantic family:
 - explicit source-partition labels with exact membership and coordinate means;
 - durable graph DatasetJSON containing row IDs and exact source edges. This is the authoritative serialization shape, not the ordinary row-array JSON import shape; application integration must use an edge-preserving registration path.
 
-These family designations identify bounded corpus truth. They do not require Moneta to select a representation independently of task, requirements or resource limits. Metamorphic variants and the explicit NIL/abstention fixture remain later PT2 work tracked by `TsatsuAmable/nemosyne-data#3`.
+These family designations identify bounded corpus truth. They do not require Moneta to select a representation independently of task, requirements or resource limits.
+
+## Metamorphic and NIL expectations
+
+PT2C provides one deterministic row permutation and one deterministic irrelevant-column addition for every PT2B family. Each relation pins the exact governed base digest and names every preserved known answer. Validation compares complete committed structures—paired durable row identities and source edges for graphs—and executes all 34 inherited answer checks. “Irrelevant” is deliberately limited to those named answers; it is not a universal claim about future tasks or learned models.
+
+The governed NIL fixture contains one thousand distinct observation identities. Its expectation is scoped to simultaneous individual inspection that must preserve every identity, permits one observation identity per element, and has a five-hundred-element concurrent limit. The catalogue therefore records `NIL` as the expected outcome but keeps `evidenceStatus` at `requires-production-path`: the corpus supplies an independently checked falsifier, not proof that Nemosyne or Moneta already produces the required abstention.

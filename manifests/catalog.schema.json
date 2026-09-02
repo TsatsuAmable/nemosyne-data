@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://nemosyne.world/schemas/nemosyne-data/catalog-2.1.schema.json",
+  "$id": "https://nemosyne.world/schemas/nemosyne-data/catalog-2.2.schema.json",
   "title": "Nemosyne governed dataset catalogue",
   "type": "object",
   "additionalProperties": false,
   "required": ["schemaVersion", "corpusVersion", "repository", "tierRows", "datasets"],
   "properties": {
-    "schemaVersion": { "const": "2.1" },
+    "schemaVersion": { "const": "2.2" },
     "corpusVersion": { "type": "string", "minLength": 1 },
     "repository": { "const": "TsatsuAmable/nemosyne-data" },
     "tierRows": {
@@ -41,6 +41,21 @@
           "contains": { "required": ["semanticFixtureFamily"], "properties": { "semanticFixtureFamily": { "const": "source-relationship-graph" } } },
           "minContains": 1,
           "maxContains": 1
+        },
+        {
+          "contains": { "required": ["metamorphicRelation"], "properties": { "metamorphicRelation": { "properties": { "kind": { "const": "row-permutation" } } } } },
+          "minContains": 5,
+          "maxContains": 5
+        },
+        {
+          "contains": { "required": ["metamorphicRelation"], "properties": { "metamorphicRelation": { "properties": { "kind": { "const": "irrelevant-column-addition" } } } } },
+          "minContains": 5,
+          "maxContains": 5
+        },
+        {
+          "contains": { "required": ["representationExpectation"] },
+          "minContains": 1,
+          "maxContains": 1
         }
       ]
     }
@@ -70,6 +85,8 @@
             "source-relationship-graph"
           ]
         },
+        "metamorphicRelation": { "$ref": "#/$defs/metamorphicRelation" },
+        "representationExpectation": { "$ref": "#/$defs/representationExpectation" },
         "governanceState": { "enum": ["candidate", "governed", "retired"] },
         "contentDigest": {
           "type": ["string", "null"],
@@ -148,6 +165,30 @@
                 "minContains": 1,
                 "maxContains": 1
               }
+            }
+          }
+        },
+        {
+          "if": { "required": ["metamorphicRelation"] },
+          "then": {
+            "not": { "required": ["semanticFixtureFamily"] },
+            "properties": {
+              "governanceState": { "const": "governed" },
+              "artifacts": {
+                "contains": { "required": ["role"], "properties": { "role": { "const": "primary" } } },
+                "minContains": 1,
+                "maxContains": 1
+              }
+            }
+          }
+        },
+        {
+          "if": { "required": ["representationExpectation"] },
+          "then": {
+            "required": ["knownAnswers"],
+            "properties": {
+              "governanceState": { "const": "governed" },
+              "knownAnswers": { "minItems": 1 }
             }
           }
         }
@@ -235,6 +276,7 @@
         "operation": {
           "enum": [
             "row-count",
+            "distinct-count",
             "sum",
             "mean",
             "range",
@@ -261,7 +303,7 @@
       },
       "allOf": [
         {
-          "if": { "properties": { "operation": { "enum": ["sum", "mean", "range", "quantile-r7"] } } },
+          "if": { "properties": { "operation": { "enum": ["distinct-count", "sum", "mean", "range", "quantile-r7"] } } },
           "then": { "required": ["field"] }
         },
         {
@@ -285,6 +327,73 @@
           "then": { "required": ["groupBy", "fields"] }
         }
       ]
+    },
+    "metamorphicRelation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["baseDatasetId", "baseContentDigest", "kind", "preservedKnownAnswerIds"],
+      "properties": {
+        "baseDatasetId": { "type": "string", "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$" },
+        "baseContentDigest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "kind": { "enum": ["row-permutation", "irrelevant-column-addition"] },
+        "preservedKnownAnswerIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "addedFields": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "irrelevant-column-addition" } } },
+          "then": { "required": ["addedFields"] },
+          "else": { "not": { "required": ["addedFields"] } }
+        }
+      ]
+    },
+    "representationExpectation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "kind", "task", "observationLevel", "requiredInformation",
+        "constraints", "expectedOutcome", "basisKnownAnswerIds", "evidenceStatus", "rationale"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$" },
+        "kind": { "const": "no-feasible-representation" },
+        "task": { "const": "simultaneous-individual-inspection" },
+        "observationLevel": { "const": "individual" },
+        "requiredInformation": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "enum": ["individual-observation-identity"] }
+        },
+        "constraints": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["maxConcurrentElements", "maxObservationIdentitiesPerElement"],
+          "properties": {
+            "maxConcurrentElements": { "type": "integer", "minimum": 1 },
+            "maxObservationIdentitiesPerElement": { "const": 1 }
+          }
+        },
+        "expectedOutcome": { "const": "NIL" },
+        "basisKnownAnswerIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "evidenceStatus": { "const": "requires-production-path" },
+        "rationale": { "type": "string", "minLength": 1 }
+      }
     },
     "tolerance": {
       "type": "object",

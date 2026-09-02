@@ -14,6 +14,8 @@ const datasetSchema = schema.$defs?.dataset;
 const fieldSchema = schema.$defs?.field;
 const knownAnswerSchema = schema.$defs?.knownAnswer;
 const knownAnswerVerificationSchema = schema.$defs?.knownAnswerVerification;
+const metamorphicRelationSchema = schema.$defs?.metamorphicRelation;
+const representationExpectationSchema = schema.$defs?.representationExpectation;
 const toleranceSchema = schema.$defs?.tolerance;
 const artifactSchema = schema.$defs?.artifact;
 
@@ -93,6 +95,7 @@ function validateKnownAnswerVerification(verification, fieldNames, context) {
   );
   const allowedPropertiesByOperation = {
     'row-count': ['operation'],
+    'distinct-count': ['operation', 'field'],
     sum: ['operation', 'field'],
     mean: ['operation', 'field'],
     range: ['operation', 'field'],
@@ -120,7 +123,7 @@ function validateKnownAnswerVerification(verification, fieldNames, context) {
     }
   };
 
-  if (['sum', 'mean', 'range', 'quantile-r7', 'graph-row-id-field-alignment'].includes(verification.operation)) {
+  if (['distinct-count', 'sum', 'mean', 'range', 'quantile-r7', 'graph-row-id-field-alignment'].includes(verification.operation)) {
     requireField('field');
   }
   if (verification.operation === 'quantile-r7') {
@@ -141,6 +144,45 @@ function validateKnownAnswerVerification(verification, fieldNames, context) {
   if (verification.operation === 'group-sums') {
     requireField('field');
   }
+}
+
+function validateMetamorphicRelation(relation, context) {
+  required(relation, metamorphicRelationSchema.required, context);
+  assertOnlyProperties(relation, Object.keys(metamorphicRelationSchema.properties), context);
+  assertPattern(relation.baseDatasetId, metamorphicRelationSchema.properties.baseDatasetId.pattern, `${context}.baseDatasetId`);
+  assertPattern(relation.baseContentDigest, metamorphicRelationSchema.properties.baseContentDigest.pattern, `${context}.baseContentDigest`);
+  assertEnum(relation.kind, enumValues(metamorphicRelationSchema, 'kind'), `${context}.kind`);
+  assert(Array.isArray(relation.preservedKnownAnswerIds) && relation.preservedKnownAnswerIds.length > 0, `${context}.preservedKnownAnswerIds must be non-empty`);
+  assertUniqueStrings(relation.preservedKnownAnswerIds, `${context}.preservedKnownAnswerIds`);
+  if (relation.kind === 'irrelevant-column-addition') {
+    assert(Array.isArray(relation.addedFields) && relation.addedFields.length > 0, `${context}.addedFields must be non-empty`);
+    assertUniqueStrings(relation.addedFields, `${context}.addedFields`);
+  } else {
+    assert(!Object.hasOwn(relation, 'addedFields'), `${context}: row permutation cannot declare addedFields`);
+  }
+}
+
+function validateRepresentationExpectation(expectation, context) {
+  required(expectation, representationExpectationSchema.required, context);
+  assertOnlyProperties(expectation, Object.keys(representationExpectationSchema.properties), context);
+  assertPattern(expectation.id, representationExpectationSchema.properties.id.pattern, `${context}.id`);
+  assert(expectation.kind === representationExpectationSchema.properties.kind.const, `${context}.kind mismatch`);
+  assert(expectation.task === representationExpectationSchema.properties.task.const, `${context}.task mismatch`);
+  assert(expectation.observationLevel === representationExpectationSchema.properties.observationLevel.const, `${context}.observationLevel mismatch`);
+  assert(expectation.expectedOutcome === representationExpectationSchema.properties.expectedOutcome.const, `${context}.expectedOutcome mismatch`);
+  assert(expectation.evidenceStatus === representationExpectationSchema.properties.evidenceStatus.const, `${context}.evidenceStatus mismatch`);
+  assert(typeof expectation.rationale === 'string' && expectation.rationale.length > 0, `${context}.rationale required`);
+  assertUniqueStrings(expectation.requiredInformation, `${context}.requiredInformation`);
+  assert(
+    expectation.requiredInformation.length === 1 && expectation.requiredInformation[0] === 'individual-observation-identity',
+    `${context}.requiredInformation must preserve individual observation identity`,
+  );
+  required(expectation.constraints, representationExpectationSchema.properties.constraints.required, `${context}.constraints`);
+  assertOnlyProperties(expectation.constraints, ['maxConcurrentElements', 'maxObservationIdentitiesPerElement'], `${context}.constraints`);
+  assert(Number.isSafeInteger(expectation.constraints.maxConcurrentElements) && expectation.constraints.maxConcurrentElements >= 1, `${context}.constraints.maxConcurrentElements must be a positive safe integer`);
+  assert(expectation.constraints.maxObservationIdentitiesPerElement === 1, `${context}.constraints.maxObservationIdentitiesPerElement must be exactly one`);
+  assert(Array.isArray(expectation.basisKnownAnswerIds) && expectation.basisKnownAnswerIds.length > 0, `${context}.basisKnownAnswerIds must be non-empty`);
+  assertUniqueStrings(expectation.basisKnownAnswerIds, `${context}.basisKnownAnswerIds`);
 }
 
 function validateShape(candidateCatalog) {
@@ -174,6 +216,12 @@ function validateShape(candidateCatalog) {
         `${context}: duplicate semantic fixture family ${dataset.semanticFixtureFamily}`,
       );
       semanticFixtureFamilies.add(dataset.semanticFixtureFamily);
+    }
+    if (dataset.metamorphicRelation) {
+      validateMetamorphicRelation(dataset.metamorphicRelation, `${context}.metamorphicRelation`);
+    }
+    if (dataset.representationExpectation) {
+      validateRepresentationExpectation(dataset.representationExpectation, `${context}.representationExpectation`);
     }
     assert(Array.isArray(dataset.intendedUses) && dataset.intendedUses.length > 0, `${context}: intendedUses must be non-empty`);
     assertUniqueStrings(dataset.intendedUses, `${context}.intendedUses`);
@@ -261,10 +309,77 @@ function validateShape(candidateCatalog) {
         `${context}: semantic fixture requires exactly one primary artifact`,
       );
     }
+    if (dataset.metamorphicRelation) {
+      assert(!dataset.semanticFixtureFamily, `${context}: metamorphic variant cannot be a semantic-family authority`);
+      assert(dataset.governanceState === 'governed', `${context}: metamorphic variant must be governed`);
+      assert((dataset.knownAnswers ?? []).length === 0, `${context}: metamorphic variant inherits scoped answers instead of redefining them`);
+      assert(dataset.provenance.transformations.length > 0, `${context}: metamorphic variant must declare its transformation`);
+      assert(
+        dataset.artifacts.filter((artifact) => artifact.role === 'primary').length === 1,
+        `${context}: metamorphic variant requires exactly one primary artifact`,
+      );
+    }
+    if (dataset.representationExpectation) {
+      assert(dataset.governanceState === 'governed', `${context}: representation expectation requires a governed dataset`);
+      assert((dataset.knownAnswers ?? []).length > 0, `${context}: representation expectation requires known-answer basis`);
+    }
   }
 
   for (const family of enumValues(datasetSchema, 'semanticFixtureFamily')) {
     assert(semanticFixtureFamilies.has(family), `catalog: missing semantic fixture family ${family}`);
+  }
+
+  const byId = new Map(candidateCatalog.datasets.map((dataset) => [dataset.id, dataset]));
+  const relationKeys = new Set();
+  for (const dataset of candidateCatalog.datasets.filter((entry) => entry.metamorphicRelation)) {
+    const context = `dataset ${dataset.id}.metamorphicRelation`;
+    const relation = dataset.metamorphicRelation;
+    const base = byId.get(relation.baseDatasetId);
+    assert(base?.semanticFixtureFamily, `${context}: base must be a direct PT2B semantic-family fixture`);
+    assert(base.contentDigest === relation.baseContentDigest, `${context}: baseContentDigest does not pin current base bytes`);
+    assert(dataset.kind === base.kind, `${context}: kind must match base dataset`);
+    assert(dataset.topology === base.topology, `${context}: topology must match base dataset`);
+    assert(dataset.privacy === base.privacy, `${context}: privacy classification must match base dataset`);
+    assert(dataset.license.status === base.license.status && dataset.license.name === base.license.name, `${context}: licence must match base dataset`);
+    const baseAnswerIds = base.knownAnswers.map((answer) => answer.id).sort();
+    assert(
+      JSON.stringify([...relation.preservedKnownAnswerIds].sort()) === JSON.stringify(baseAnswerIds),
+      `${context}: preservedKnownAnswerIds must name every base answer exactly once`,
+    );
+    const key = `${base.id}:${relation.kind}`;
+    assert(!relationKeys.has(key), `${context}: duplicate direct variant ${key}`);
+    relationKeys.add(key);
+
+    const baseFields = base.measurementSchema.fields;
+    const variantFields = dataset.measurementSchema.fields;
+    if (relation.kind === 'row-permutation') {
+      assert(JSON.stringify(variantFields) === JSON.stringify(baseFields), `${context}: row permutation must preserve measurement schema exactly`);
+    } else {
+      assert(variantFields.length === baseFields.length + relation.addedFields.length, `${context}: irrelevant-column schema size mismatch`);
+      assert(JSON.stringify(variantFields.slice(0, baseFields.length)) === JSON.stringify(baseFields), `${context}: irrelevant-column variant changed base field semantics`);
+      assert(
+        JSON.stringify(variantFields.slice(baseFields.length).map((field) => field.name)) === JSON.stringify(relation.addedFields),
+        `${context}: addedFields do not match appended measurement fields`,
+      );
+    }
+
+    const basePrimary = base.artifacts.find((artifact) => artifact.role === 'primary');
+    const variantPrimary = dataset.artifacts.find((artifact) => artifact.role === 'primary');
+    assert(variantPrimary.format === basePrimary.format, `${context}: artifact format must match base`);
+  }
+
+  for (const base of candidateCatalog.datasets.filter((dataset) => dataset.semanticFixtureFamily)) {
+    for (const kind of enumValues(metamorphicRelationSchema, 'kind')) {
+      assert(relationKeys.has(`${base.id}:${kind}`), `catalog: missing ${kind} variant for ${base.id}`);
+    }
+  }
+
+  const expectationDatasets = candidateCatalog.datasets.filter((dataset) => dataset.representationExpectation);
+  assert(expectationDatasets.length === 1, 'catalog: exactly one PT2C representation expectation required');
+  const expectationDataset = expectationDatasets[0];
+  const answerIds = new Set(expectationDataset.knownAnswers.map((answer) => answer.id));
+  for (const basisId of expectationDataset.representationExpectation.basisKnownAnswerIds) {
+    assert(answerIds.has(basisId), `dataset ${expectationDataset.id}: unknown representation-expectation basis ${basisId}`);
   }
 }
 
@@ -289,7 +404,7 @@ async function validateMaterialization(dataset) {
         const declared = dataset.measurementSchema.fields.map((field) => field.name);
         assert(JSON.stringify(header) === JSON.stringify(declared), `${context}: CSV header does not match declared measurement fields for ${artifact.path}`);
       }
-    } else if (artifact.format === 'json' && dataset.semanticFixtureFamily === 'source-relationship-graph') {
+    } else if (artifact.format === 'json' && dataset.topology === 'GRAPH') {
       const value = JSON.parse(bytes.toString('utf8'));
       assert(Array.isArray(value.columns), `${context}: graph DatasetJSON columns required`);
       assert(Array.isArray(value.rows), `${context}: graph DatasetJSON rows required`);
@@ -454,9 +569,42 @@ expectShapeFailure('exact tolerance carries ignored numeric bound', (sample) => 
   const dataset = sample.datasets.find((candidate) => candidate.semanticFixtureFamily === 'aggregate');
   dataset.knownAnswers[0].tolerance.value = 0;
 });
+expectShapeFailure('metamorphic relation carries stale base digest', (sample) => {
+  const variant = sample.datasets.find((dataset) => dataset.metamorphicRelation);
+  variant.metamorphicRelation.baseContentDigest = 'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+});
+expectShapeFailure('metamorphic relation claims unknown preserved answer', (sample) => {
+  const variant = sample.datasets.find((dataset) => dataset.metamorphicRelation);
+  variant.metamorphicRelation.preservedKnownAnswerIds[0] = 'invented-answer';
+});
+expectShapeFailure('metamorphic relation targets another variant', (sample) => {
+  const variants = sample.datasets.filter((dataset) => dataset.metamorphicRelation);
+  variants[0].metamorphicRelation.baseDatasetId = variants[1].id;
+  variants[0].metamorphicRelation.baseContentDigest = variants[1].contentDigest;
+});
+expectShapeFailure('missing direct metamorphic relation', (sample) => {
+  const index = sample.datasets.findIndex((dataset) => dataset.metamorphicRelation);
+  sample.datasets.splice(index, 1);
+});
+expectShapeFailure('irrelevant-column schema disagrees with addedFields', (sample) => {
+  const variant = sample.datasets.find((dataset) => dataset.metamorphicRelation?.kind === 'irrelevant-column-addition');
+  variant.metamorphicRelation.addedFields[0] = 'undeclared_control';
+});
+expectShapeFailure('representation expectation claims production verification', (sample) => {
+  const dataset = sample.datasets.find((candidate) => candidate.representationExpectation);
+  dataset.representationExpectation.evidenceStatus = 'verified';
+});
+expectShapeFailure('representation expectation names unknown basis', (sample) => {
+  const dataset = sample.datasets.find((candidate) => candidate.representationExpectation);
+  dataset.representationExpectation.basisKnownAnswerIds[0] = 'invented-basis';
+});
+expectShapeFailure('distinct-count verification omits field', (sample) => {
+  const dataset = sample.datasets.find((candidate) => candidate.representationExpectation);
+  delete dataset.knownAnswers[0].verification.field;
+});
 
 const governed = catalog.datasets.filter((dataset) => dataset.governanceState === 'governed').length;
 const candidates = catalog.datasets.filter((dataset) => dataset.governanceState === 'candidate').length;
 const artifacts = catalog.datasets.reduce((sum, dataset) => sum + dataset.artifacts.length, 0);
 console.log(`validated ${catalog.datasets.length} datasets (${governed} governed, ${candidates} candidate), ${artifacts} materialized artifacts, schema ${catalog.schemaVersion}, corpus ${catalog.corpusVersion}`);
-console.log('negative contract self-tests: 18 passed');
+console.log('negative contract self-tests: 26 passed');

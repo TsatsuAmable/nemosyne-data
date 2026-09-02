@@ -1,6 +1,6 @@
 {
-  "schemaVersion": "2.1",
-  "corpusVersion": "nemosyne-corpus-v0.3.0",
+  "schemaVersion": "2.2",
+  "corpusVersion": "nemosyne-corpus-v0.4.0",
   "repository": "TsatsuAmable/nemosyne-data",
   "tierRows": {
     "smoke": 1000,
@@ -730,6 +730,403 @@
           "compression": "none"
         }
       ]
+    },
+    {
+      "id": "synthetic.aggregate-family.row-permuted",
+      "datasetVersion": "0.1.0",
+      "label": "Aggregate family row permutation",
+      "kind": "synthetic",
+      "description": "Deterministic reverse-row permutation of the governed aggregate-family fixture.",
+      "topology": "TABULAR",
+      "metamorphicRelation": {
+        "baseDatasetId": "synthetic.aggregate-family",
+        "baseContentDigest": "sha256:9bbd62297c428644f7614201e137acb4aebeeda9fc30cddf568620edb60e67d5",
+        "kind": "row-permutation",
+        "preservedKnownAnswerIds": ["group-counts", "group-sums", "total-sum"]
+      },
+      "governanceState": "governed",
+      "contentDigest": "sha256:5bf60632a80951abe5b8c89c2bc26a85a512eee3d1d5090f0e838231fc18fc91",
+      "privacy": "synthetic",
+      "license": { "status": "declared", "name": "Project-generated synthetic fixture" },
+      "provenance": {
+        "origin": "Deterministic PT2C transformation of the governed aggregate-family fixture",
+        "generator": "scripts/generate-metamorphic-nil.mjs",
+        "transformations": ["reverse row order while preserving the complete row multiset"]
+      },
+      "intendedUses": ["row-order invariance checks for aggregate known answers"],
+      "measurementSchema": {
+        "status": "declared",
+        "fields": [
+          { "name": "id", "storageType": "integer", "measurementScale": "none", "semanticType": "identifier", "nullable": false },
+          { "name": "group", "storageType": "string", "measurementScale": "nominal", "semanticType": "categorical", "nullable": false },
+          { "name": "value", "storageType": "integer", "measurementScale": "ratio", "semanticType": "quantitative", "nullable": false }
+        ]
+      },
+      "plannedTiers": ["smoke"],
+      "artifacts": [{ "tier": "smoke", "role": "primary", "format": "csv", "path": "data/metamorphic/aggregate-family/row-permuted.csv", "rows": 1000, "bytes": 7905, "sha256": "3485e736226d6d1e1b22c6832b56841d022c078906ab3eb4585c204462b7e8da", "compression": "none" }]
+    },
+    {
+      "id": "synthetic.aggregate-family.irrelevant-column",
+      "datasetVersion": "0.1.0",
+      "label": "Aggregate family irrelevant-column variant",
+      "kind": "synthetic",
+      "description": "Aggregate-family fixture with one deterministic control field irrelevant only to the named preserved answers.",
+      "topology": "TABULAR",
+      "metamorphicRelation": {
+        "baseDatasetId": "synthetic.aggregate-family",
+        "baseContentDigest": "sha256:9bbd62297c428644f7614201e137acb4aebeeda9fc30cddf568620edb60e67d5",
+        "kind": "irrelevant-column-addition",
+        "preservedKnownAnswerIds": ["group-counts", "group-sums", "total-sum"],
+        "addedFields": ["metamorphic_control"]
+      },
+      "governanceState": "governed",
+      "contentDigest": "sha256:5294a42d4e09400532bd66cad2196cbf3c8673f619ca9c0373fbee7f34ffb0fa",
+      "privacy": "synthetic",
+      "license": { "status": "declared", "name": "Project-generated synthetic fixture" },
+      "provenance": {
+        "origin": "Deterministic PT2C transformation of the governed aggregate-family fixture",
+        "generator": "scripts/generate-metamorphic-nil.mjs",
+        "transformations": ["append metamorphic_control without changing any base field"]
+      },
+      "intendedUses": ["scoped irrelevant-field invariance checks for aggregate known answers"],
+      "measurementSchema": {
+        "status": "declared",
+        "fields": [
+          { "name": "id", "storageType": "integer", "measurementScale": "none", "semanticType": "identifier", "nullable": false },
+          { "name": "group", "storageType": "string", "measurementScale": "nominal", "semanticType": "categorical", "nullable": false },
+          { "name": "value", "storageType": "integer", "measurementScale": "ratio", "semanticType": "quantitative", "nullable": false },
+          { "name": "metamorphic_control", "storageType": "string", "measurementScale": "nominal", "semanticType": "categorical", "nullable": false }
+        ]
+      },
+      "plannedTiers": ["smoke"],
+      "artifacts": [{ "tier": "smoke", "role": "primary", "format": "csv", "path": "data/metamorphic/aggregate-family/irrelevant-column.csv", "rows": 1000, "bytes": 19925, "sha256": "3a3d035897a7ee0adc2f4278bd573264edb78b552eed85528f5bd199ab663004", "compression": "none" }]
+    },
+    {
+      "id": "synthetic.distribution-family.row-permuted",
+      "datasetVersion": "0.1.0",
+      "label": "Distribution family row permutation",
+      "kind": "synthetic",
+      "description": "Deterministic reverse-row permutation of the governed empirical-distribution fixture.",
+      "topology": "TABULAR",
+      "metamorphicRelation": {
+        "baseDatasetId": "synthetic.distribution-family",
+        "baseContentDigest": "sha256:9a9c47dd1588bee23828d1cf623415ee8bec4040fa8eda2279b8d51890f6e9ba",
+        "kind": "row-permutation",
+        "preservedKnownAnswerIds": ["value-frequencies", "mean", "q25-r7", "median-r7", "q75-r7"]
+      },
+      "governanceState": "governed",
+      "contentDigest": "sha256:8e62fc216e4e9336ba100468441258bda599770f0cc76aa7c9d97522b1b27685",
+      "privacy": "synthetic",
+      "license": { "status": "declared", "name": "Project-generated synthetic fixture" },
+      "provenance": {
+        "origin": "Deterministic PT2C transformation of the governed distribution-family fixture",
+        "generator": "scripts/generate-metamorphic-nil.mjs",
+        "transformations": ["reverse row order while preserving the complete row multiset"]
+      },
+      "intendedUses": ["row-order invariance checks for empirical-distribution known answers"],
+      "measurementSchema": {
+        "status": "declared",
+        "fields": [
+          { "name": "id", "storageType": "integer", "measurementScale": "none", "semanticType": "identifier", "nullable": false },
+          { "name": "value", "storageType": "integer", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false }
+        ]
+      },
+      "plannedTiers": ["smoke"],
+      "artifacts": [{ "tier": "smoke", "role": "primary", "format": "csv", "path": "data/metamorphic/distribution-family/row-permuted.csv", "rows": 1000, "bytes": 5899, "sha256": "e12c308eea2a68d341ff0d5b3b9844a10674038f9b34f94cc9f0636b2d551f2a", "compression": "none" }]
+    },
+    {
+      "id": "synthetic.distribution-family.irrelevant-column",
+      "datasetVersion": "0.1.0",
+      "label": "Distribution family irrelevant-column variant",
+      "kind": "synthetic",
+      "description": "Empirical-distribution fixture with one deterministic control field irrelevant only to the named preserved answers.",
+      "topology": "TABULAR",
+      "metamorphicRelation": {
+        "baseDatasetId": "synthetic.distribution-family",
+        "baseContentDigest": "sha256:9a9c47dd1588bee23828d1cf623415ee8bec4040fa8eda2279b8d51890f6e9ba",
+        "kind": "irrelevant-column-addition",
+        "preservedKnownAnswerIds": ["value-frequencies", "mean", "q25-r7", "median-r7", "q75-r7"],
+        "addedFields": ["metamorphic_control"]
+      },
+      "governanceState": "governed",
+      "contentDigest": "sha256:eab22f425718f4a35937a4657a909b016b4fbc33e0d49521484daf99ac80a1e0",
+      "privacy": "synthetic",
+      "license": { "status": "declared", "name": "Project-generated synthetic fixture" },
+      "provenance": {
+        "origin": "Deterministic PT2C transformation of the governed distribution-family fixture",
+        "generator": "scripts/generate-metamorphic-nil.mjs",
+        "transformations": ["append metamorphic_control without changing any base field"]
+      },
+      "intendedUses": ["scoped irrelevant-field invariance checks for empirical-distribution known answers"],
+      "measurementSchema": {
+        "status": "declared",
+        "fields": [
+          { "name": "id", "storageType": "integer", "measurementScale": "none", "semanticType": "identifier", "nullable": false },
+          { "name": "value", "storageType": "integer", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "metamorphic_control", "storageType": "string", "measurementScale": "nominal", "semanticType": "categorical", "nullable": false }
+        ]
+      },
+      "plannedTiers": ["smoke"],
+      "artifacts": [{ "tier": "smoke", "role": "primary", "format": "csv", "path": "data/metamorphic/distribution-family/irrelevant-column.csv", "rows": 1000, "bytes": 17919, "sha256": "9fbaa3321f92c6585c62dfd876395d70707bb09ac8f674dd6d1581e89ca02c67", "compression": "none" }]
+    },
+    {
+      "id": "synthetic.binned-density-family.row-permuted",
+      "datasetVersion": "0.1.0",
+      "label": "Binned-density family row permutation",
+      "kind": "synthetic",
+      "description": "Deterministic reverse-row permutation of the governed bounded binned-density fixture.",
+      "topology": "TABULAR",
+      "metamorphicRelation": {
+        "baseDatasetId": "synthetic.binned-density-family",
+        "baseContentDigest": "sha256:d1cf53110269c506a5a866222fe0cbb6aff850c78cb5782b48d21948dc4b1fe7",
+        "kind": "row-permutation",
+        "preservedKnownAnswerIds": ["occupied-coordinate-counts", "x-separation"]
+      },
+      "governanceState": "governed",
+      "contentDigest": "sha256:73104ca80e2a98024a3b48773d9ee4d679df6567001121c0b2ea3006801a92cc",
+      "privacy": "synthetic",
+      "license": { "status": "declared", "name": "Project-generated synthetic fixture" },
+      "provenance": {
+        "origin": "Deterministic PT2C transformation of the governed binned-density-family fixture",
+        "generator": "scripts/generate-metamorphic-nil.mjs",
+        "transformations": ["reverse row order while preserving the complete row multiset"]
+      },
+      "intendedUses": ["row-order invariance checks for bounded binned-density known answers"],
+      "measurementSchema": {
+        "status": "declared",
+        "fields": [
+          { "name": "id", "storageType": "integer", "measurementScale": "none", "semanticType": "identifier", "nullable": false },
+          { "name": "x", "storageType": "integer", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "y", "storageType": "integer", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false }
+        ]
+      },
+      "plannedTiers": ["smoke"],
+      "artifacts": [{ "tier": "smoke", "role": "primary", "format": "csv", "path": "data/metamorphic/binned-density-family/row-permuted.csv", "rows": 1000, "bytes": 9397, "sha256": "82383562240d448d4ad96a28a4abacd5ae0df54e1f70489e5e4768270a519399", "compression": "none" }]
+    },
+    {
+      "id": "synthetic.binned-density-family.irrelevant-column",
+      "datasetVersion": "0.1.0",
+      "label": "Binned-density family irrelevant-column variant",
+      "kind": "synthetic",
+      "description": "Binned-density fixture with one deterministic control field irrelevant only to the named preserved answers.",
+      "topology": "TABULAR",
+      "metamorphicRelation": {
+        "baseDatasetId": "synthetic.binned-density-family",
+        "baseContentDigest": "sha256:d1cf53110269c506a5a866222fe0cbb6aff850c78cb5782b48d21948dc4b1fe7",
+        "kind": "irrelevant-column-addition",
+        "preservedKnownAnswerIds": ["occupied-coordinate-counts", "x-separation"],
+        "addedFields": ["metamorphic_control"]
+      },
+      "governanceState": "governed",
+      "contentDigest": "sha256:25ea701fb87c99d9cd1f5040bc16e7ad93287003ee7ca6190c856c31b5096d85",
+      "privacy": "synthetic",
+      "license": { "status": "declared", "name": "Project-generated synthetic fixture" },
+      "provenance": {
+        "origin": "Deterministic PT2C transformation of the governed binned-density-family fixture",
+        "generator": "scripts/generate-metamorphic-nil.mjs",
+        "transformations": ["append metamorphic_control without changing any base field"]
+      },
+      "intendedUses": ["scoped irrelevant-field invariance checks for bounded binned-density known answers"],
+      "measurementSchema": {
+        "status": "declared",
+        "fields": [
+          { "name": "id", "storageType": "integer", "measurementScale": "none", "semanticType": "identifier", "nullable": false },
+          { "name": "x", "storageType": "integer", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "y", "storageType": "integer", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "metamorphic_control", "storageType": "string", "measurementScale": "nominal", "semanticType": "categorical", "nullable": false }
+        ]
+      },
+      "plannedTiers": ["smoke"],
+      "artifacts": [{ "tier": "smoke", "role": "primary", "format": "csv", "path": "data/metamorphic/binned-density-family/irrelevant-column.csv", "rows": 1000, "bytes": 21417, "sha256": "4351fb2f33527a5ba63c8e97315423ba8853ddd36284d6bf123a97cf477e1bf7", "compression": "none" }]
+    },
+    {
+      "id": "synthetic.source-partition-cluster-family.row-permuted",
+      "datasetVersion": "0.1.0",
+      "label": "Source-partition cluster family row permutation",
+      "kind": "synthetic",
+      "description": "Deterministic reverse-row permutation of the governed source-partition cluster fixture.",
+      "topology": "POINT_CLOUD",
+      "metamorphicRelation": {
+        "baseDatasetId": "synthetic.source-partition-cluster-family",
+        "baseContentDigest": "sha256:e839ca345fb7f71b15e04cbfb91640ae9e59f216bf850c201cd39d2a235c78af",
+        "kind": "row-permutation",
+        "preservedKnownAnswerIds": ["partition-counts", "partition-coordinate-means"]
+      },
+      "governanceState": "governed",
+      "contentDigest": "sha256:921d752ab7097ba1a4706e62d4b84e04495fafa15fc1a773137b32e6b7139809",
+      "privacy": "synthetic",
+      "license": { "status": "declared", "name": "Project-generated synthetic fixture" },
+      "provenance": {
+        "origin": "Deterministic PT2C transformation of the governed source-partition cluster fixture",
+        "generator": "scripts/generate-metamorphic-nil.mjs",
+        "transformations": ["reverse row order while preserving the complete row multiset"]
+      },
+      "intendedUses": ["row-order invariance checks for source-partition known answers"],
+      "measurementSchema": {
+        "status": "declared",
+        "fields": [
+          { "name": "id", "storageType": "integer", "measurementScale": "none", "semanticType": "identifier", "nullable": false },
+          { "name": "cluster_id", "storageType": "string", "measurementScale": "nominal", "semanticType": "categorical", "nullable": false },
+          { "name": "x", "storageType": "integer", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "y", "storageType": "integer", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false }
+        ]
+      },
+      "plannedTiers": ["smoke"],
+      "artifacts": [{ "tier": "smoke", "role": "primary", "format": "csv", "path": "data/metamorphic/source-partition-cluster-family/row-permuted.csv", "rows": 1000, "bytes": 12908, "sha256": "1fb571aa11f2001afed7cfc4a74630ba57257b6fd1df6a0f04543705971ccc04", "compression": "none" }]
+    },
+    {
+      "id": "synthetic.source-partition-cluster-family.irrelevant-column",
+      "datasetVersion": "0.1.0",
+      "label": "Source-partition cluster family irrelevant-column variant",
+      "kind": "synthetic",
+      "description": "Source-partition fixture with one deterministic control field irrelevant only to the named preserved answers.",
+      "topology": "POINT_CLOUD",
+      "metamorphicRelation": {
+        "baseDatasetId": "synthetic.source-partition-cluster-family",
+        "baseContentDigest": "sha256:e839ca345fb7f71b15e04cbfb91640ae9e59f216bf850c201cd39d2a235c78af",
+        "kind": "irrelevant-column-addition",
+        "preservedKnownAnswerIds": ["partition-counts", "partition-coordinate-means"],
+        "addedFields": ["metamorphic_control"]
+      },
+      "governanceState": "governed",
+      "contentDigest": "sha256:7c76688db571eeeca84543442e8de71092a6f0465f5dade5e36585dee10e8a0e",
+      "privacy": "synthetic",
+      "license": { "status": "declared", "name": "Project-generated synthetic fixture" },
+      "provenance": {
+        "origin": "Deterministic PT2C transformation of the governed source-partition cluster fixture",
+        "generator": "scripts/generate-metamorphic-nil.mjs",
+        "transformations": ["append metamorphic_control without changing any base field"]
+      },
+      "intendedUses": ["scoped irrelevant-field invariance checks for source-partition known answers"],
+      "measurementSchema": {
+        "status": "declared",
+        "fields": [
+          { "name": "id", "storageType": "integer", "measurementScale": "none", "semanticType": "identifier", "nullable": false },
+          { "name": "cluster_id", "storageType": "string", "measurementScale": "nominal", "semanticType": "categorical", "nullable": false },
+          { "name": "x", "storageType": "integer", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "y", "storageType": "integer", "measurementScale": "interval", "semanticType": "quantitative", "nullable": false },
+          { "name": "metamorphic_control", "storageType": "string", "measurementScale": "nominal", "semanticType": "categorical", "nullable": false }
+        ]
+      },
+      "plannedTiers": ["smoke"],
+      "artifacts": [{ "tier": "smoke", "role": "primary", "format": "csv", "path": "data/metamorphic/source-partition-cluster-family/irrelevant-column.csv", "rows": 1000, "bytes": 24928, "sha256": "726090f6e4a98615ef0943a1398e1d961ec10e6cc06f9a4114c60f3be794d514", "compression": "none" }]
+    },
+    {
+      "id": "synthetic.relationship-graph-family.row-permuted",
+      "datasetVersion": "0.1.0",
+      "label": "Source relationship graph row permutation",
+      "kind": "synthetic",
+      "description": "Deterministic paired row and durable-row-ID permutation of the governed source relationship graph.",
+      "topology": "GRAPH",
+      "metamorphicRelation": {
+        "baseDatasetId": "synthetic.relationship-graph-family",
+        "baseContentDigest": "sha256:48b0d14c69d1f0dadebf5c0cba2359d68f8ecdaa94db36a5154de2c0ad919ee4",
+        "kind": "row-permutation",
+        "preservedKnownAnswerIds": ["node-count", "edge-count", "weak-components", "directed-degree-range", "durable-node-identity"]
+      },
+      "governanceState": "governed",
+      "contentDigest": "sha256:03d6e620e7050a3530b4fe6c77f5b137992aea684c62b6bff9a8c34a587d230b",
+      "privacy": "synthetic",
+      "license": { "status": "declared", "name": "Project-generated synthetic fixture" },
+      "provenance": {
+        "origin": "Deterministic PT2C transformation of the governed relationship-graph fixture",
+        "generator": "scripts/generate-metamorphic-nil.mjs",
+        "transformations": ["reverse rows and paired durable row IDs while preserving all source edges"]
+      },
+      "intendedUses": ["row-order invariance checks for source-authoritative graph known answers"],
+      "measurementSchema": {
+        "status": "declared",
+        "fields": [
+          { "name": "node_id", "storageType": "string", "measurementScale": "none", "semanticType": "identifier", "nullable": false },
+          { "name": "community", "storageType": "string", "measurementScale": "nominal", "semanticType": "categorical", "nullable": false }
+        ]
+      },
+      "plannedTiers": ["smoke"],
+      "artifacts": [{ "tier": "smoke", "role": "primary", "format": "json", "path": "data/metamorphic/relationship-graph-family/row-permuted.json", "rows": 1000, "bytes": 123234, "sha256": "8787dc1b564569bbf8a6272826b5adfc60da010f505108c85701b2327324ba2f", "compression": "none" }]
+    },
+    {
+      "id": "synthetic.relationship-graph-family.irrelevant-column",
+      "datasetVersion": "0.1.0",
+      "label": "Source relationship graph irrelevant-column variant",
+      "kind": "synthetic",
+      "description": "Source relationship graph with one deterministic control field irrelevant only to the named preserved answers.",
+      "topology": "GRAPH",
+      "metamorphicRelation": {
+        "baseDatasetId": "synthetic.relationship-graph-family",
+        "baseContentDigest": "sha256:48b0d14c69d1f0dadebf5c0cba2359d68f8ecdaa94db36a5154de2c0ad919ee4",
+        "kind": "irrelevant-column-addition",
+        "preservedKnownAnswerIds": ["node-count", "edge-count", "weak-components", "directed-degree-range", "durable-node-identity"],
+        "addedFields": ["metamorphic_control"]
+      },
+      "governanceState": "governed",
+      "contentDigest": "sha256:27429b7964d7691984c824f7e62346b196be982cb16d668dd66bd90764a8fe43",
+      "privacy": "synthetic",
+      "license": { "status": "declared", "name": "Project-generated synthetic fixture" },
+      "provenance": {
+        "origin": "Deterministic PT2C transformation of the governed relationship-graph fixture",
+        "generator": "scripts/generate-metamorphic-nil.mjs",
+        "transformations": ["append metamorphic_control without changing base fields, durable row IDs or source edges"]
+      },
+      "intendedUses": ["scoped irrelevant-field invariance checks for source-authoritative graph known answers"],
+      "measurementSchema": {
+        "status": "declared",
+        "fields": [
+          { "name": "node_id", "storageType": "string", "measurementScale": "none", "semanticType": "identifier", "nullable": false },
+          { "name": "community", "storageType": "string", "measurementScale": "nominal", "semanticType": "categorical", "nullable": false },
+          { "name": "metamorphic_control", "storageType": "string", "measurementScale": "nominal", "semanticType": "categorical", "nullable": false }
+        ]
+      },
+      "plannedTiers": ["smoke"],
+      "artifacts": [{ "tier": "smoke", "role": "primary", "format": "json", "path": "data/metamorphic/relationship-graph-family/irrelevant-column.json", "rows": 1000, "bytes": 159294, "sha256": "6cb9a3415e9ec1aef2ea2f5d688486ea14edabd3b1ce09a690a02b92460f20bc", "compression": "none" }]
+    },
+    {
+      "id": "synthetic.nil-abstention",
+      "datasetVersion": "0.1.0",
+      "label": "Individual-identity NIL expectation",
+      "kind": "synthetic",
+      "description": "One thousand distinct observation identities for a scoped no-feasible-representation expectation under a five-hundred-element limit.",
+      "topology": "TABULAR",
+      "representationExpectation": {
+        "id": "individual-identity-over-max-elements",
+        "kind": "no-feasible-representation",
+        "task": "simultaneous-individual-inspection",
+        "observationLevel": "individual",
+        "requiredInformation": ["individual-observation-identity"],
+        "constraints": { "maxConcurrentElements": 500, "maxObservationIdentitiesPerElement": 1 },
+        "expectedOutcome": "NIL",
+        "basisKnownAnswerIds": ["identity-cardinality"],
+        "evidenceStatus": "requires-production-path",
+        "rationale": "Simultaneous individual inspection permits one observation identity per distinguishable element, but the governed fixture contains more distinct identities than the declared concurrent element budget permits."
+      },
+      "governanceState": "governed",
+      "contentDigest": "sha256:43e20ef9c095798cdf0c26199eb11eff8684704c0adf1a2f5fa7919595d99512",
+      "privacy": "synthetic",
+      "license": { "status": "declared", "name": "Project-generated synthetic fixture" },
+      "provenance": {
+        "origin": "Deterministic identity-only PT2C falsifier fixture",
+        "generator": "scripts/generate-metamorphic-nil.mjs",
+        "transformations": []
+      },
+      "intendedUses": ["production-path NIL and abstention falsifier under explicit task and resource constraints"],
+      "measurementSchema": {
+        "status": "declared",
+        "fields": [
+          { "name": "observation_id", "storageType": "string", "measurementScale": "none", "semanticType": "identifier", "nullable": false }
+        ]
+      },
+      "knownAnswers": [
+        {
+          "id": "identity-cardinality",
+          "claim": "The fixture contains exactly one thousand distinct observation identities.",
+          "expected": 1000,
+          "tolerance": { "kind": "exact" },
+          "authority": "analytical-derivation",
+          "derivation": "The generator emits the zero-padded identities obs-0000 through obs-0999 exactly once.",
+          "verification": { "operation": "distinct-count", "field": "observation_id" }
+        }
+      ],
+      "plannedTiers": ["smoke"],
+      "artifacts": [{ "tier": "smoke", "role": "primary", "format": "csv", "path": "data/synthetic/nil-abstention/smoke.csv", "rows": 1000, "bytes": 9015, "sha256": "2c90a0fc41dd33eb097ae210ed04c9520922c4d057a69e39ee9e6c2a02548a56", "compression": "none" }]
     },
     {
       "id": "real.palmer-penguins",
