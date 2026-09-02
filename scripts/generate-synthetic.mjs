@@ -1,8 +1,9 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const ROOT = resolve(new URL('..', import.meta.url).pathname);
-const TIERS = Object.freeze({ smoke: 1_000, small: 8_000, medium: 65_000, large: 100_000, xlarge: 250_000 });
+const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
+const TIERS = Object.freeze({ fixture: 16, smoke: 1_000, small: 8_000, medium: 65_000, large: 100_000, xlarge: 250_000 });
 const requested = process.argv.slice(2).filter((arg) => !arg.startsWith('-'));
 const tiers = requested.length ? requested : ['smoke'];
 for (const tier of tiers) {
@@ -75,8 +76,48 @@ function missingnessRows(count) {
   });
 }
 
+function aggregateRows(count) {
+  return Array.from({ length: count }, (_, id) => {
+    const group = id % 4;
+    return [id, `g${group}`, group + 1];
+  });
+}
+
+function distributionRows(count) {
+  return Array.from({ length: count }, (_, id) => [id, id]);
+}
+
+function zeroVarianceRows(count) {
+  return Array.from({ length: count }, (_, id) => [id, 0, 0, 0]);
+}
+
+function reversed(rows) {
+  return [...rows].reverse();
+}
+
+function withIrrelevantLabel(rows) {
+  return rows.map((row) => [...row, `n${row[0] % 7}`]);
+}
+
 for (const tier of tiers) {
   const count = TIERS[tier];
+
+  if (tier === 'fixture') {
+    const aggregate = aggregateRows(count);
+    const distribution = distributionRows(count);
+
+    await writeCsv(`data/synthetic/aggregate-truth/${tier}.csv`, ['id', 'group', 'value'], aggregate);
+    await writeCsv(`data/synthetic/aggregate-truth-row-permuted/${tier}.csv`, ['id', 'group', 'value'], reversed(aggregate));
+    await writeCsv(`data/synthetic/aggregate-truth-irrelevant-column/${tier}.csv`, ['id', 'group', 'value', 'irrelevant_label'], withIrrelevantLabel(aggregate));
+
+    await writeCsv(`data/synthetic/distribution-truth/${tier}.csv`, ['id', 'value'], distribution);
+    await writeCsv(`data/synthetic/distribution-truth-row-permuted/${tier}.csv`, ['id', 'value'], reversed(distribution));
+    await writeCsv(`data/synthetic/distribution-truth-irrelevant-column/${tier}.csv`, ['id', 'value', 'irrelevant_label'], withIrrelevantLabel(distribution));
+
+    await writeCsv(`data/synthetic/abstention-zero-variance/${tier}.csv`, ['id', 'x', 'y', 'z'], zeroVarianceRows(count));
+    continue;
+  }
+
   await writeCsv(`data/synthetic/linear-truth/${tier}.csv`, ['id', 'x', 'y', 'z', 'group', 'timestamp_s'], linearRows(count));
   await writeCsv(`data/synthetic/clustered-truth/${tier}.csv`, ['id', 'x', 'y', 'z', 'cluster_id'], clusteredRows(count));
   await writeCsv(`data/synthetic/null-control/${tier}.csv`, ['id', 'x', 'y', 'z', 'category'], nullRows(count));
