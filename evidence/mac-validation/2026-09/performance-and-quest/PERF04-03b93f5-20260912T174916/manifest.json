@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "1",
+  "sessionId": "4aa33f93-8756-4890-8a0b-1abe418ca9c8",
+  "sessionLabel": "PERF04-03b93f5-20260912T174916",
+  "buildId": "03b93f5aa0915ddce15e3ec3a649fcc8db5f68ee",
+  "worktree": "clean",
+  "validationMode": "quest-perf",
+  "gates": [
+    "PERF-04",
+    "PERF-05"
+  ],
+  "profile": "quest-3s-qualification",
+  "runtimeClass": "vite-dev",
+  "evidenceClass": "governed-physical-validation",
+  "deviceIdentity": {
+    "captureBasis": "adb-system-property",
+    "model": "Quest 3S",
+    "manufacturer": "Oculus",
+    "buildIncremental": "3814840024700610",
+    "buildDisplayId": "UP1A.231005.007.A1",
+    "buildFingerprint": "oculus/panther/panther:14/UP1A.231005.007.A1/3814840024700610:user/abl_signing_keys:release,amss_signing_keys:release,release-keys",
+    "securityPatch": "2026-06-03"
+  },
+  "deviceIdentityError": null,
+  "declaredQuestModel": null,
+  "declaredFirmwareVersion": null,
+  "userAgent": null,
+  "nominalXrRateHz": null,
+  "timestamps": {
+    "createdAt": "2026-09-12T17:49:16.320Z",
+    "startedAt": null,
+    "completedAt": null
+  },
+  "evidenceDir": "logs/validation/PERF04-03b93f5-20260912T174916",
+  "linkedArtifacts": [
+    {
+      "kind": "manifest",
+      "path": "logs/validation/PERF04-03b93f5-20260912T174916/manifest.json",
+      "status": "written"
+    },
+    {
+      "kind": "evidence-directory",
+      "path": "logs/validation/PERF04-03b93f5-20260912T174916",
+      "status": "expected"
+    }
+  ],
+  "gateDisposition": {
+    "status": null,
+    "reasons": []
+  },
+  "invalidations": [],
+  "promotionEligible": true
+}

@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "1",
+  "sessionId": "2c3c64d2-8239-443d-b069-13638c7d8366",
+  "sessionLabel": "quest-975ff80-20260913T081956",
+  "buildId": "975ff808749528b7323cb0e11625427b217cdb76",
+  "validationMode": "quest",
+  "gates": [],
+  "evidenceClass": "physical-device-trial",
+  "deviceIdentity": {
+    "captureBasis": "adb-system-property",
+    "model": "Quest 3S",
+    "manufacturer": "Oculus",
+    "buildIncremental": "3814840024700610",
+    "buildDisplayId": "UP1A.231005.007.A1",
+    "buildFingerprint": "oculus/panther/panther:14/UP1A.231005.007.A1/3814840024700610:user/abl_signing_keys:release,amss_signing_keys:release,release-keys",
+    "securityPatch": "2026-06-03"
+  },
+  "gateDisposition": {
+    "status": null,
+    "reasons": []
+  },
+  "invalidations": [
+    "evidence class 'physical-device-trial' is not promotion-grade"
+  ],
+  "promotionEligible": false,
+  "recordedAt": "2026-09-13T08:19:56.012Z"
+}

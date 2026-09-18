@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "1",
+  "sessionId": "e413aa92-e60a-43b9-8de4-deae26e9a226",
+  "sessionLabel": "PERF04-dbdb1dc-20260911T125206",
+  "rawEvidenceDigest": "cfb70cd06c1cee7e92393a9f9135bbbce8999724b24e8f1238e7a7f5590eb9cf",
+  "artifacts": [
+    {
+      "path": "loadtest-results.jsonl",
+      "bytes": 14988,
+      "sha256": "7316bb1309b210b28d754b9d671098cab0202820f19e5d7f705af803c8c60640"
+    },
+    {
+      "path": "manifest.json",
+      "bytes": 1574,
+      "sha256": "37b2e7bf2c500bdf92a80a609a028109bc03daa35b39f3ee13ded3b9f7cfcc0a"
+    }
+  ]
+}
