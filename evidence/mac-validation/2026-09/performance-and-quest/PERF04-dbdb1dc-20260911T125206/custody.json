@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "1",
+  "state": "finalized",
+  "sessionId": "e413aa92-e60a-43b9-8de4-deae26e9a226",
+  "sessionLabel": "PERF04-dbdb1dc-20260911T125206",
+  "buildId": "dbdb1dcd1a5248a1a4e087432f749f3de4af2022",
+  "worktree": "clean",
+  "runtimeClass": "vite-dev",
+  "evidenceClass": "governed-physical-validation",
+  "deviceBuildFingerprint": "oculus/panther/panther:14/UP1A.231005.007.A1/3814840024700610:user/abl_signing_keys:release,amss_signing_keys:release,release-keys",
+  "finalizedAt": "2026-09-11T13:09:08.174Z",
+  "rawEvidenceDigest": "cfb70cd06c1cee7e92393a9f9135bbbce8999724b24e8f1238e7a7f5590eb9cf",
+  "rawEvidence": [
+    {
+      "path": "loadtest-results.jsonl",
+      "bytes": 14988,
+      "sha256": "7316bb1309b210b28d754b9d671098cab0202820f19e5d7f705af803c8c60640"
+    },
+    {
+      "path": "manifest.json",
+      "bytes": 1574,
+      "sha256": "37b2e7bf2c500bdf92a80a609a028109bc03daa35b39f3ee13ded3b9f7cfcc0a"
+    }
+  ],
+  "derivedArtifacts": [
+    {
+      "path": "analysis.json",
+      "bytes": 1614,
+      "sha256": "c4eb067d0d6a11379e2c6d599ee23976f6d57909265d47062c9df590b7bcd812"
+    },
+    {
+      "path": "disposition.json",
+      "bytes": 1305,
+      "sha256": "70ea038aaffcd4628a65a7c2c19ec7bf6a5882ec35590de1381a50bcb7765ea6"
+    },
+    {
+      "path": "evidence-index.json",
+      "bytes": 552,
+      "sha256": "c08ecb1e824bdbe85c9ed208349adbe920b713224a99ae6d461000929352200c"
+    }
+  ],
+  "bundleDigest": "b87022b89bb0687591d5207b37451aea80478132030e0383af69e4a717c6c5b3"
+}

@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1",
+  "adjudicationSchemaVersion": "1",
+  "status": "complete",
+  "recordedAt": "2026-09-11T13:09:08.174Z",
+  "rawEvidenceDigest": "cfb70cd06c1cee7e92393a9f9135bbbce8999724b24e8f1238e7a7f5590eb9cf",
+  "adjudicatorVersion": "qv4-v1",
+  "sessionId": "e413aa92-e60a-43b9-8de4-deae26e9a226",
+  "sessionLabel": "PERF04-dbdb1dc-20260911T125206",
+  "buildId": "dbdb1dcd1a5248a1a4e087432f749f3de4af2022",
+  "validationMode": "quest-perf",
+  "evidenceClass": "governed-physical-validation",
+  "analyzerValid": true,
+  "validationErrors": [],
+  "cohort": {
+    "perfPassingRunCount": 0,
+    "perfCompletedRunCount": 1,
+    "boundaryCompletedRunCount": 0,
+    "boundaryAttemptCount": 0
+  },
+  "gateResults": [
+    {
+      "gate": "PERF-04",
+      "status": "FAIL",
+      "reasons": [
+        "1k baseline adjudicated red; PERF-04 requires green",
+        "8k baseline adjudicated red; PERF-04 requires green",
+        "65k scale adjudicated yellow; PERF-04 requires green",
+        "100k soak adjudicated red; PERF-04 requires green"
+      ]
+    },
+    {
+      "gate": "PERF-05",
+      "status": "PARTIAL",
+      "reasons": [
+        "allocation/GC evidence was captured, but PERF-05 has no fixed automatic device pass threshold; QV4 will not invent one"
+      ]
+    }
+  ],
+  "aggregateStatus": "FAIL",
+  "aggregateReasons": [
+    "PERF-04: 1k baseline adjudicated red; PERF-04 requires green",
+    "PERF-04: 8k baseline adjudicated red; PERF-04 requires green",
+    "PERF-04: 65k scale adjudicated yellow; PERF-04 requires green",
+    "PERF-04: 100k soak adjudicated red; PERF-04 requires green"
+  ]
+}

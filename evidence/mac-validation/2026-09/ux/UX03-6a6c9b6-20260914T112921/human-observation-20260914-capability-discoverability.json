@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "1",
+  "evidenceKind": "owner-operated-qualitative-ux-observation",
+  "sessionId": "ab852df6-a615-400c-94a3-6624f21d55d9",
+  "sessionLabel": "UX03-6a6c9b6-20260914T112921",
+  "buildId": "6a6c9b654f290a22e3420fa3964c7b92562e2c0b",
+  "deviceBuildFingerprint": "oculus/panther/panther:14/UP1A.231005.007.A1/3814840024700610:user/abl_signing_keys:release,amss_signing_keys:release,release-keys",
+  "recordedAt": "2026-09-14T12:43:14.035193Z",
+  "source": {
+    "actor": "project-owner/operator",
+    "captureBasis": "contemporaneous self-report during physical Quest use",
+    "transport": "ChatGPT conversation relayed into local evidence vault"
+  },
+  "scope": {
+    "physicalDevice": "Quest 3S",
+    "validationMode": "quest-ux",
+    "promotionEvidence": false,
+    "reason": "Supplemental qualitative observation. Does not satisfy the bounded guided-UX task schema or P1-U9 prerequisite."
+  },
+  "observations": [
+    {
+      "id": "ux-human-001",
+      "category": "spatial-navigation",
+      "severity": "material",
+      "statement": "The generic panel launcher appeared as an arc across from the user and did not feel appropriately anchored or useful in the analyst workflow.",
+      "disposition": "remediated-in-main-286466ad",
+      "relatedChange": "PR #744"
+    },
+    {
+      "id": "ux-human-002",
+      "category": "capability-discoverability",
+      "severity": "material",
+      "statement": "The user does not feel more confident discovering or understanding Nemosyne's capabilities after the UI migration.",
+      "disposition": "open"
+    },
+    {
+      "id": "ux-human-003",
+      "category": "cognitive-comfort",
+      "severity": "material",
+      "statement": "Uncertainty about what Nemosyne can do and where capabilities live reduces subjective comfort, even without a report of vestibular discomfort.",
+      "disposition": "open"
+    }
+  ],
+  "interpretation": {
+    "overall": "needs-remediation",
+    "boundedGuidedUxTaskRunCompleted": false,
+    "comfortPass": false,
+    "notes": "Do not convert this record into a passing guided-UX result. The current bounded runner files remain not-run because the governed task sequence was not completed."
+  }
+}

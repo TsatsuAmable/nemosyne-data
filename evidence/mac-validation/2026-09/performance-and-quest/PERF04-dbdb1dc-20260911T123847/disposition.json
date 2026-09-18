@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "1",
+  "sessionId": "01ad7653-54c9-4242-9e92-7a89b16c6886",
+  "sessionLabel": "PERF04-dbdb1dc-20260911T123847",
+  "buildId": "dbdb1dcd1a5248a1a4e087432f749f3de4af2022",
+  "validationMode": "quest-perf",
+  "gates": [
+    "PERF-04",
+    "PERF-05"
+  ],
+  "evidenceClass": "governed-physical-validation",
+  "deviceIdentity": {
+    "captureBasis": "adb-system-property",
+    "model": "Quest 3S",
+    "manufacturer": "Oculus",
+    "buildIncremental": "3814840024700610",
+    "buildDisplayId": "UP1A.231005.007.A1",
+    "buildFingerprint": "oculus/panther/panther:14/UP1A.231005.007.A1/3814840024700610:user/abl_signing_keys:release,amss_signing_keys:release,release-keys",
+    "securityPatch": "2026-06-03"
+  },
+  "gateDisposition": {
+    "status": null,
+    "reasons": []
+  },
+  "invalidations": [],
+  "promotionEligible": true,
+  "recordedAt": "2026-09-11T12:38:47.067Z"
+}
