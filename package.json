@@ -14,7 +14,8 @@
     "validate:catalog": "node scripts/validate-catalog.mjs",
     "validate:known-answers": "node scripts/validate-known-answers.mjs",
     "lab:typecheck": "tsc --noEmit -p lab/tsconfig.json",
-    "lab:experiment": "node --experimental-strip-types lab/engine/run-xr-architecture-experiment.ts"
+    "lab:experiment": "node --experimental-strip-types lab/engine/run-xr-architecture-experiment.ts",
+    "lab:capacity": "node --experimental-strip-types lab/engine/run-local-capacity-envelope.ts"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
