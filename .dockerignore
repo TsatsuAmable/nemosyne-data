@@ -1,9 +1,11 @@
-staging/
+.git
+.gitignore
+node_modules
+staging
+lab/xr-architecture/artifacts
+evidence
+research
 data/synthetic/*/small.csv
 data/synthetic/*/medium.csv
 data/synthetic/*/large.csv
 data/synthetic/*/xlarge.csv
-
-lab/xr-architecture/artifacts/
-
-node_modules/
