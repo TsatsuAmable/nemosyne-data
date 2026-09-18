@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "kind": "moneta-rust-wasm-structure-profile-staircase",
+  "date": "2026-09-18",
+  "specimen": {"repository":"TsatsuAmable/nemosyne","kernelVersion":"0.1.0"},
+  "host": {"platform":"darwin","arch":"arm64","logicalCpuCount":8,"memoryBytes":17179869184},
+  "dataset": {"generator":"generatePlantedThreeClusterDataset","seed":20260918,"clusters":3,"features":["u","v"],"featureType":"NUMERIC","jitter":0.55},
+  "claimScope": "Measures one Rust/WASM DatasetStructureProfile computation per stair. Does not qualify complete Moneta representation selection, XR rendering, GPU performance, perturbation campaigns, Quest performance, or human UX.",
+  "stoppingRule": {"status":"PRACTICAL_LOCAL_LIMIT_REACHED","reason":"The 4.5M-row stair exceeded 60 seconds for one profile and exceeded 25% of 16 GiB host RAM in end RSS; higher stairs were not attempted to avoid converting a capacity measurement into an uncontrolled OOM test."},
+  "stairs": [
+    {"rows":180,"wallMs":9.162541,"rssDeltaBytes":3080192,"hasClusters":true,"estimatedCount":3,"separationScore":0.9406588595024435},
+    {"rows":1800,"wallMs":9.955,"rssDeltaBytes":4882432,"hasClusters":true,"estimatedCount":3,"separationScore":0.9266979465790945},
+    {"rows":18000,"wallMs":62.074416,"rssDeltaBytes":16285696,"hasClusters":true,"estimatedCount":3,"separationScore":0.924845480058556},
+    {"rows":180000,"wallMs":598.382209,"rssDeltaBytes":175210496,"hasClusters":true,"estimatedCount":3,"separationScore":0.9251359818262415},
+    {"rows":600000,"wallMs":2283.327959,"rssDeltaBytes":446414848,"hasClusters":true,"estimatedCount":3,"separationScore":0.9220268940026363},
+    {"rows":1800000,"wallMs":9716.849625,"rssDeltaBytes":847822848,"hasClusters":true,"estimatedCount":3,"separationScore":0.9243386009650584},
+    {"rows":4500000,"wallMs":95028.279625,"rssDeltaBytes":3826122752,"rssEndBytes":4844568576,"hasClusters":true,"estimatedCount":3,"separationScore":0.9197848791737706}
+  ]
+}
