@@ -1,0 +1,256 @@
+﻿{
+    "schemaVersion":  1,
+    "archiveId":  "adversarial-committees-2026-09-17",
+    "capturedAt":  "2026-09-18",
+    "sourceRepository":  "TsatsuAmable/nemosyne",
+    "sourceCommit":  "eb741257f42d840595560a425edbafd41707e618",
+    "sourceMachine":  "Millhouse",
+    "note":  "Preserved verbatim from the previously untracked .research-council working directory. Outputs are exploratory research evidence, not product authority.",
+    "files":  [
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/HIGH_ASSURANCE_CROSS_EXAM.txt",
+                      "bytes":  1864,
+                      "sha256":  "f6c8ab42be8a43fd8c19e7bf5d957a7828cb629fc58b1132bdd814457b09a772"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/ollama_council.ps1",
+                      "bytes":  1645,
+                      "sha256":  "91c5a0b133326fb9e7e276d2c14613b9229f3ec9d588efe7523e68799f692001"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/ollama_council.py",
+                      "bytes":  1390,
+                      "sha256":  "bb25428ffc021c4365bd0e2b6cf7ff549901e67ba70bba8d58c4513b6f8a3783"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/ollama_http_stream.py",
+                      "bytes":  1197,
+                      "sha256":  "28013f117ec1be16243831fd4ccd8a53e1358bddcd4aee11c93d747466661020"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/ollama_stream_worker.py",
+                      "bytes":  1238,
+                      "sha256":  "d61e994433b04252f9fc150b40d3a08e1bdd688f1dcd54de620eda46b77bf8b7"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/PT9_GEMINI.md",
+                      "bytes":  0,
+                      "sha256":  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/PT9_PROMPT.txt",
+                      "bytes":  1075,
+                      "sha256":  "9fd038b43d87033ca972a876001c84dd4d76d41ddeb083917410e170f7b02872"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/PT9_QWEN.md",
+                      "bytes":  0,
+                      "sha256":  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/cross_deepseek.md",
+                      "bytes":  16422,
+                      "sha256":  "eabadbf501133e0fa9ba533c7a8e81489c458c90be96513820cad0852b183d33"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/cross_deepseek_status.json",
+                      "bytes":  159,
+                      "sha256":  "c074843a781dbc81ce053e931c28eb30aab5576b052fc59ce22be3f70f9b5dd5"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/cross_glm.md",
+                      "bytes":  32818,
+                      "sha256":  "5d5737ab3e9d75e16cac6b3eee10ddaa8dd19296f059ad13581de897129b91c0"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/cross_glm_status.json",
+                      "bytes":  147,
+                      "sha256":  "eea61648e49a220fd05994d5911ce73fd5bcbb77a8da4cd85d42bb6b4a867444"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/pt9_deepseek.md",
+                      "bytes":  13662,
+                      "sha256":  "e71c0d10d72020c4668d54e2b5e7f3e614abdc4e93306405799ee54fabdbd1be"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/pt9_deepseek/output.md",
+                      "bytes":  12901,
+                      "sha256":  "62f2aa3db1fd17140ee62d55bb73d8c6ba7ffed43812828d0f0cfd263e5aa360"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/pt9_deepseek/status.json",
+                      "bytes":  157,
+                      "sha256":  "4e63fd072f165e536a4974d426ebdd345c90245af40172908f388e5f5f0e17cf"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/pt9_deepseek_status.json",
+                      "bytes":  159,
+                      "sha256":  "9e16b20bcdbccb5a6ec1b00a9b009438ab0ab2ca01318b27a7b65160291bc4e8"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/pt9_glmflash.md",
+                      "bytes":  27853,
+                      "sha256":  "975e857a5473972c2d02e1271710a21a5d076c348f133c714435f44d7d38526d"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/pt9_glmflash/output.md",
+                      "bytes":  26712,
+                      "sha256":  "9ccad061324c5475fea0913a197c97f103f853e69228757d99661b95831e3054"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/pt9_glmflash/status.json",
+                      "bytes":  151,
+                      "sha256":  "6fe4affeec1c2a3f8946be4a505f4157ddbd389316c1077f630746d1a3b7ead0"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/pt9_glmflash_status.json",
+                      "bytes":  153,
+                      "sha256":  "4777f351a62cd036a0d7cf263d8bc4da9b5f591165a789987193611db50a58fa"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/staircase_gemma.md",
+                      "bytes":  6253,
+                      "sha256":  "0e61741c776c2b8b3b8a622bf81a339b7342218e0f1b2964f66165557fb6260f"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/staircase_gemma_status.json",
+                      "bytes":  149,
+                      "sha256":  "e701adf975a68a7e3a96df49d3353d7dc646bb5b6b51ab289654b531eeaf6408"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/staircase_glm.md",
+                      "bytes":  28356,
+                      "sha256":  "45a3e34bf57ea9670826affe47add3b24b71d443caab3f25efc9710c181cc444"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/staircase_glm_status.json",
+                      "bytes":  147,
+                      "sha256":  "4c725e4b888c30475f0c6a7cd06ce9cec2ae0f6566d1fdd3e2f494bad31911a1"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/uxr34_gemma.md",
+                      "bytes":  5531,
+                      "sha256":  "48b7ce21856908add58fb247b712263e93ce671bb44a0e3894a68bc719043e41"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/uxr34_gemma/output.md",
+                      "bytes":  5854,
+                      "sha256":  "675a27202abf759687d5924c771d7e380683a52149ee86cea085d3d6a1763f90"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/uxr34_gemma/status.json",
+                      "bytes":  147,
+                      "sha256":  "2d21fe1e394c4dc486dd07c500921a3bcbd79c21a758ee8de1e5e746a9798709"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/uxr34_gemma_status.json",
+                      "bytes":  149,
+                      "sha256":  "d695b3e6b90cb84c91645e98a128a4a04c93be3822dee6b2e4dc7b7256cae261"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/uxr34_glm/output.md",
+                      "bytes":  24819,
+                      "sha256":  "44af2163b0a3f008a66ecbe03df20e7ea34c0c166efb9ecea068fe24f5ff870a"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/uxr34_glm/status.json",
+                      "bytes":  145,
+                      "sha256":  "063cdebd93ddf82a970adf59f4dd1a3545cdde90d18f0d21edd662b18f9bfa76"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/uxr34_glm_stream.md",
+                      "bytes":  0,
+                      "sha256":  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/uxr34_glm_stream_status.json",
+                      "bytes":  138,
+                      "sha256":  "8769e8b916fe73d71d2ed93c407fe96925bc1b0caeee3c8b74b74b92e17b197e"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/uxr34_glmflash_stream.md",
+                      "bytes":  33697,
+                      "sha256":  "5fe1c68c62f3589d5adc0a4aedbdd2c5cc4fcc3def47cf58b17d51774f3baab9"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/uxr34_glmflash_stream_status.json",
+                      "bytes":  153,
+                      "sha256":  "3fe1d41b1e77a9f96291cdb75501a4f09db06756d50f876c386832398883e2ac"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/uxr5_deepseek.md",
+                      "bytes":  11064,
+                      "sha256":  "6948962d2970859c39aa995d79c1feaf97536bf0010cac806e87af467697a628"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/uxr5_deepseek/output.md",
+                      "bytes":  11195,
+                      "sha256":  "2f4072c0cde0e8d15c20245f7de8f027b19a28509ecbc4db64ea3f68d7897ed7"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/uxr5_deepseek/status.json",
+                      "bytes":  157,
+                      "sha256":  "de2b0421ae7d1d79be69d4ee711853a6e7fef8d35d0ae9f2fd14053448d26de1"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/uxr5_deepseek_status.json",
+                      "bytes":  159,
+                      "sha256":  "24779cc5359a6121305a66a761bdea8d7cfb1fe59525f05e16a62387c13de3f3"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/uxr5_gemma.md",
+                      "bytes":  5145,
+                      "sha256":  "1891bfbc0579483fa1f80e9010c4e43fc2f1e2bf5b6505c4cb1c9a0b753bc271"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/uxr5_gemma/output.md",
+                      "bytes":  5306,
+                      "sha256":  "c98f00f6fbbb8d94bf71624faf65c0d9acbe60b420c4cafafbed301f915964a8"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/uxr5_gemma/status.json",
+                      "bytes":  147,
+                      "sha256":  "2309d8f8c19b417ebb1e69d70d3af37dcf85dda6ff21ab5f6884a09192887f3d"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/runs/uxr5_gemma_status.json",
+                      "bytes":  149,
+                      "sha256":  "0280149bb60fcceb6170df32b285eeebf550d076914331c1d086a7453ff51e4a"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/STAIRCASE_PROMPT.txt",
+                      "bytes":  2096,
+                      "sha256":  "24ed47aef727e260c148bf1e9f2b4a5492ddab7e556bdbc0e1e2deee259b0773"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/test_streaming_runner.py",
+                      "bytes":  834,
+                      "sha256":  "4935d6f69850300c8e95ff9661915a700cd4dff2e609570273c0131c66a5c209"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/UXR3_4_NEMOTRON.md",
+                      "bytes":  0,
+                      "sha256":  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/UXR3_4_PROMPT.txt",
+                      "bytes":  1089,
+                      "sha256":  "43db2e2478e806bbdc2070a093c2ed1b25a80cf01de766c40be5a930dab4d9ca"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/UXR3_4_SOL.md",
+                      "bytes":  0,
+                      "sha256":  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/UXR5_DEEPSEEK.md",
+                      "bytes":  0,
+                      "sha256":  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  },
+                  {
+                      "path":  "research/adversarial-committees/2026-09-17/UXR5_PROMPT.txt",
+                      "bytes":  1063,
+                      "sha256":  "c0273c538527ef8789dfa43a46013aa463988bf1d45331aa6ed0aae654dc00ea"
+                  }
+              ]
+}

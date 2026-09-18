@@ -1,0 +1,15 @@
+HIGH-ASSURANCE CROSS-EXAMINATION PROTOCOL
+
+This is a consequential nemosyne.world architecture decision. Treat all previous model reports as hypotheses, not evidence or authority.
+
+Compare SWSE-0, Staircase/SRA, and any stronger orthogonal alternative. Explicitly separate governing criteria, observations, claims, assumptions, and unknowns. Model agreement is never a decision rule. Reject invented constants and unsupported complexity claims. Require prior-art verification before consequential adoption.
+
+Shared evaluation substrate is mandatory: same datasets, traces, seeds, hardware profiles, semantic identities, resource budgets, telemetry definitions, replay inputs, and UX tasks. Preserve Rust/WASM analytical authority and zero contamination of durable semantic truth.
+
+Attack: representation levels, scheduler levels, whether scheduler sophistication should be coupled to visual fidelity, identity continuity, stale async fencing, cancellation, starvation/fairness, multi-axis cost bounds, reconstruction, long-session leakage, replay determinism, discoverability, comfort, semantic legibility, and scheduler overhead.
+
+For each disputed design claim specify a decisive falsifier and admissible evidence. Human/Quest claims require human/physical-device evidence. Statistical claims require protocol-owned criteria and ABSTAIN when unjustified.
+
+Assess a minimal shadow-mode implementation that shares the current UXR3 identity/evidence substrate and measures a cost vector per capability before fixing level boundaries. Retain rejected alternatives and reasons as provenance.
+
+Output: strongest case for each architecture; strongest attack on each; common invariants; irreducible disagreements; experiment matrix; prior art requiring verification; implementation seams to inspect on current main; and explicit ABSTAIN register. Do not choose a winner.
