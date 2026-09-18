@@ -51,6 +51,10 @@ The lab must never independently reimplement Moneta analytical truth in TypeScri
 8. **Human evidence remains human.** Simulator/model consensus cannot establish comfort, discoverability or perceived usefulness.
 9. **More compute is not automatically more evidence.** Compute is an independent experimental variable.
 10. **Evolution may search representation, never truth.** Analytical facts/provenance are immutable constraints on evolutionary search.
+11. **Exploration and qualification are separate phases.** Adaptive search may use discovery evidence, but promotion requires a frozen candidate and independent/sealed qualification evidence [R5][R6].
+12. **Semantic gain is not visual richness.** Additional geometry, texture or rendering fidelity is recorded separately from newly supported semantic propositions, relationships or task affordances.
+13. **The grammar is a hypothesis.** Typed representation grammars constrain search but may encode designer prejudice; unexpressible phenomena may be recorded as `OUT_OF_GRAMMAR` rather than coerced into an existing representation.
+14. **Reproducibility has levels.** The lab distinguishes exact deterministic replay from statistical/distributional reproducibility when parallelism, GPUs or runtimes make bitwise replay inappropriate.
 
 ## 4. Target repository topology
 
@@ -285,6 +289,17 @@ Experiments must distinguish:
 
 Only the latter three can support a claim that additional compute produced additional Moneta capability.
 
+## 11.1 Semantic Gain Contract
+
+Every experiment claiming that additional compute or a richer representation reveals additional meaning must distinguish four quantities:
+
+- **semantic gain:** new evidence-backed dataset propositions, relationships, structures or task-relevant affordances;
+- **semantic retention/loss:** which previously admissible meanings remain available or are explicitly discarded;
+- **visual fidelity:** geometry, texture, sampling density, animation or rendering refinement that changes presentation without establishing new meaning;
+- **evidence strength:** additional perturbation/replication/qualification support for an already represented claim.
+
+A phenotype that is visually richer but semantically equivalent is not a higher-semantic-capability result. A more expensive phenotype that is semantically equivalent and otherwise no better is dominated by the cheaper phenotype.
+
 ## 12. Evolutionary Representation Laboratory
 
 ### 12.1 Objective
@@ -293,7 +308,13 @@ Evolve **meaning-preserving semantic representation states** under controlled co
 
 Evolution does not optimize raw geometry in isolation. It searches compositions of semantic embodiment and spatial realization while immutable analytical/evidence constraints define what may be claimed.
 
-### 12.2 RepresentationGenome V1
+### 12.2 Constraint/admissibility solver
+
+Genome generation is followed by a hard admissibility stage **before phenotype construction**. This follows the general separation between hard and soft constraints demonstrated by constraint-based visualization systems such as Draco [R2].
+
+The solver rejects candidates that violate analytical authority, measurement-scale rules, dataset/decision identity, semantic abstraction boundaries, resource/security limits, or grammar validity. Soft/evolutionary preference operates only inside the admissible set. Rejection is retained as lineage evidence.
+
+### 12.3 RepresentationGenome V1
 
 A versioned genome may encode:
 
@@ -313,7 +334,7 @@ A versioned genome may encode:
 
 Analytical facts, dataset fingerprint, governing provenance and oracle truth are **not genes**.
 
-### 12.3 Evolutionary state
+### 12.4 Evolutionary state
 
 Every candidate records:
 
@@ -334,7 +355,7 @@ Every candidate records:
 
 This produces a reproducible representation phylogeny.
 
-### 12.4 Variation
+### 12.5 Variation
 
 Operators may include:
 
@@ -350,7 +371,7 @@ Operators may include:
 
 An operator cannot invent membership, correlations, clusters or other analytical facts. Such changes require a new Rust/WASM-authoritative analytical observation.
 
-### 12.5 Fitness and admissibility
+### 12.6 Fitness and admissibility
 
 Do not begin with one scalar fitness function.
 
@@ -374,7 +395,7 @@ Hard evidence/admissibility gates precede optimization. Missing criteria produce
 
 A Pareto/frontier formulation is preferred initially over forced scalarization.
 
-### 12.6 Evolutionary compute staircase
+### 12.7 Evolutionary compute staircase
 
 Increasing compute can purchase:
 
@@ -390,7 +411,7 @@ Increasing compute can purchase:
 
 The research question is whether these increments yield **defensible additional semantic capability**, not whether evolution consumes the available compute.
 
-### 12.7 Baselines
+### 12.8 Baselines
 
 Evolution must compete under identical budgets with:
 
@@ -402,7 +423,7 @@ Evolution must compete under identical budgets with:
 
 This guards against mistaking compute expenditure for algorithmic contribution.
 
-### 12.8 Evolutionary adversaries
+### 12.9 Evolutionary adversaries
 
 Campaigns should attack:
 
@@ -417,9 +438,29 @@ Campaigns should attack:
 - representations that expose known answers only through benchmark leakage;
 - candidates whose machine fitness conflicts with Quest/human evidence.
 
-### 12.9 Road-not-taken evidence
+### 12.10 Quality-diversity repertoire
+
+Pareto search is not the only target. The lab should also support quality-diversity/repertoire experiments in which high-quality representations occupy distinct semantic/task/compute niches rather than collapsing toward one universal champion [R4]. A repertoire may therefore be indexed by dataset characteristics, analytical task, semantic complexity, compute tier and interaction context.
+
+This is especially compatible with Moneta's rejected alternatives: an alternative may be unsuitable for the current niche yet remain valuable elsewhere.
+
+### 12.11 Road-not-taken evidence
 
 Rejected alternatives are first-class evidence. Evolutionary lineage can later support Nemosyne's ghost-geometry "roads not taken" feature, but the visualization is downstream of immutable lineage evidence.
+
+### 12.12 Search-space and bloat controls
+
+Evolution begins with a small typed declarative grammar rather than executable candidate code. Grammar expansion is staged and versioned. Controls include bounded node/depth counts, grammar-aware mutation, hard feasibility checks, explicit complexity/resource objectives, parsimony/dominance rules, and operator ablations.
+
+If an observed structure cannot be represented without violating the grammar, the result may be `OUT_OF_GRAMMAR`. Grammar versions are themselves research hypotheses and may be revised through the Research Cycle process.
+
+### 12.13 Evidence cache
+
+Repeated evolutionary evaluation must not force Rust/WASM to recompute immutable analytical evidence unnecessarily. The lab may use a content-addressed evidence cache keyed by specimen/build identity, dataset fingerprint, analytical request, protocol version and relevant parameters. Cached objects are authoritative observations previously emitted by the specimen, not conclusions inferred from geometry.
+
+### 12.14 Offline search vs runtime deployment
+
+Evolutionary search cost and deployed Moneta inference cost are separate budgets. Experiments record both and, where relevant, estimate amortization: how many subsequent investigations or decisions reuse learned/evolved knowledge before the offline search cost is justified.
 
 ## 13. Research Cycle Registry
 
@@ -498,7 +539,9 @@ Wolfram or other analysis engines may perform:
 
 Every derived artifact records engine/version, protocol ID/version, code hash and input evidence hashes.
 
-Post-selection/evolutionary inference requires explicit treatment. Selecting a representation and then evaluating it on the same evidence can create selection bias; holdout/sample-split/selective methods or independent validation campaigns should be used where claims require inference.
+Post-selection/evolutionary inference requires explicit treatment. Selecting a representation and then evaluating it on the same evidence can create selection bias [R5]. Adaptive reuse of a holdout can also compromise ordinary validity assumptions [R6]. Evolutionary search is therefore exploratory by default. Confirmatory claims require frozen candidate(s), frozen protocol and independent evidence, using sample splitting, selective/simultaneous inference, sealed holdouts or another pre-specified method appropriate to the claim.
+
+Qualification should prefer **benchmark-family holdout** where possible, not merely row holdout, so evolution cannot succeed by learning peculiarities of one generator or corpus.
 
 ## 16. Evidence store and portable bundle
 
@@ -599,15 +642,15 @@ Once Nemosyne exposes the contract, test dataset-first abstraction, composition,
 
 ### EVO-0: evolutionary contracts
 
-Implement `RepresentationGenome`, lineage, variation schema, independent fitness-axis evidence and evolutionary bundle format. No optimization yet.
+Implement `RepresentationGenome`, lineage, typed/versioned grammar, `OUT_OF_GRAMMAR`, constraint/admissibility solver, Semantic Gain Contract, complexity accounting, evidence-cache identity, exploration/qualification split, independent fitness-axis evidence and evolutionary bundle format. No optimization yet.
 
 ### EVO-1: controlled search
 
-Mutation-only and random-search baselines over safe declarative spatial/semantic parameters.
+Mutation-only and random-search baselines over safe declarative spatial/semantic parameters. EVO-1 is gated on an independently reviewable dataset-first semantic grammar V1 and sealed qualification protocol.
 
-### EVO-2: recombination + Pareto selection
+### EVO-2: recombination + Pareto/QD selection
 
-Add compositional recombination, diversity preservation and multi-objective frontier selection.
+Add compositional recombination, diversity preservation, multi-objective frontier selection and a quality-diversity/repertoire mode. Multi-objective methods such as NSGA-II provide established precedent for non-dominated selection [R3]; quality-diversity research provides precedent for retaining diverse high-performing niches [R4].
 
 ### EVO-3: compute-conditioned evolution
 
@@ -651,3 +694,29 @@ Evolutionary capability is a subsequent completion layer requiring reproducible 
 4. Convert the current Mac staircase into an isolated/repeated laboratory staircase.
 5. Preserve current architecture experiments as preregistered candidates, not conclusions.
 6. Add EVO-0 schemas only after the Nemosyne dataset-first semantic embodiment contracts stabilize enough to avoid encoding today's point-layout leak as the evolutionary genome.
+7. Before EVO-1, demonstrate the constraint/admissibility solver, Semantic Gain Contract, complexity/bloat accounting, evidence cache, `OUT_OF_GRAMMAR` path, sealed qualification split and exact-vs-statistical reproducibility policy.
+8. Keep evolutionary discovery and confirmatory qualification on distinct evidence paths; a candidate selected by evolution is frozen before qualification.
+9. Treat the compute-to-semantic-capability relationship as a falsifiable research hypothesis, not an architectural assumption.
+
+## 23. Prior art and design rationale
+
+The laboratory intentionally adopts ideas with established precedent while preserving Nemosyne-specific boundaries.
+
+- **Declarative grammar/compiler.** Vega-Lite demonstrates that concise high-level visualization and interaction specifications can compile into lower-level dataflow/rendering specifications [R1]. Nemosyne extends the architectural pattern toward dataset-semantic, immersive embodiment; Vega-Lite does not establish that extension.
+- **Hard/soft visualization constraints.** Draco formalizes visualization design knowledge as constraints and learns weights for soft constraints [R2]. This motivates the lab's hard admissibility-before-optimization boundary, without making Draco's objective or 2D design space authoritative for Moneta.
+- **Multi-objective optimization.** NSGA-II is established prior art for non-dominated multi-objective evolutionary selection [R3]. The lab therefore treats Pareto selection as an available mechanism rather than a novel contribution.
+- **Quality-diversity.** QD/MAP-Elites literature emphasizes repertoires of diverse, locally high-quality solutions rather than one global optimum [R4]. This motivates compute/task/semantic representation niches and preservation of useful rejected alternatives.
+- **Post-selection/adaptive validation.** Statistical work on post-selection inference and reusable holdouts shows why adaptively chosen candidates cannot be treated as though they were fixed before observing evaluation data [R5][R6]. This motivates the exploration/qualification split.
+- **Immersive analytics.** Immersive analytics research treats spatial analytical environments as promising while retaining open questions about appropriate representations, interaction and empirical human benefit [R7]. Simulator evidence therefore cannot establish comfort, discoverability or human analytical utility.
+
+These references establish feasibility and reusable mechanisms, not proof of Moneta's central empirical thesis. The hypothesis that additional compute plus evolutionary semantic search yields additional truthful and human-useful representational capability remains to be tested.
+
+### References
+
+- **[R1]** Satyanarayan, A., Moritz, D., Wongsuphasawat, K., & Heer, J. (2017). *Vega-Lite: A Grammar of Interactive Graphics*. IEEE Transactions on Visualization and Computer Graphics, 23(1), 341-350. DOI: 10.1109/TVCG.2016.2599030.
+- **[R2]** Moritz, D., Wang, C., Nelson, G. L., Lin, H., Smith, A. M., Howe, B., & Heer, J. (2019). *Formalizing Visualization Design Knowledge as Constraints: Actionable and Extensible Models in Draco*. IEEE Transactions on Visualization and Computer Graphics, 25(1), 438-448. DOI: 10.1109/TVCG.2018.2865240.
+- **[R3]** Deb, K., Pratap, A., Agarwal, S., & Meyarivan, T. (2002). *A Fast and Elitist Multiobjective Genetic Algorithm: NSGA-II*. IEEE Transactions on Evolutionary Computation, 6(2), 182-197. DOI: 10.1109/4235.996017.
+- **[R4]** Pugh, J. K., Soros, L. B., & Stanley, K. O. (2016). *Quality Diversity: A New Frontier for Evolutionary Computation*. Frontiers in Robotics and AI, 3:40. DOI: 10.3389/frobt.2016.00040.
+- **[R5]** Kuchibhotla, A. K., Kolassa, J. E., & Kuffner, T. A. (2022). *Post-Selection Inference*. Annual Review of Statistics and Its Application, 9, 505-527. DOI: 10.1146/annurev-statistics-100421-044639.
+- **[R6]** Dwork, C., Feldman, V., Hardt, M., Pitassi, T., Reingold, O., & Roth, A. (2015). *The reusable holdout: Preserving validity in adaptive data analysis*. Science, 349(6248), 636-638. DOI: 10.1126/science.aaa9375.
+- **[R7]** Skarbez, R., Polys, N. F., Ogle, J. T., North, C., & Bowman, D. A. (2019). *Immersive Analytics: Theory and Research Agenda*. Frontiers in Robotics and AI, 6:82. DOI: 10.3389/frobt.2019.00082.
