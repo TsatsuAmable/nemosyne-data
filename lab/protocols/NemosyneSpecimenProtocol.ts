@@ -1,0 +1,5 @@
+export interface DatasetJSON { name:string; columns:Array<{name:string;type:string}>; rows:Array<Record<string,number|string|boolean|null>>; }
+export interface SpecimenIdentity { repository:"TsatsuAmable/nemosyne"; commit:string; buildHash:string; protocolVersion:"1"; }
+export interface StructureProfileObservation { hasClusters:boolean; estimatedCount:number; separationScore:number; }
+export interface NemosyneSpecimenAdapter { identity:SpecimenIdentity; profileStructure(dataset:DatasetJSON):Promise<StructureProfileObservation>; runXRScenario?(scenarioId:string,seed:number):Promise<{outcome:string;errors:string[];episode?:unknown}>; runResourcePressure?(input:{iterations:number;maxLive:number;cleanupPerTick:number}):Promise<unknown>; }
+export function assertPinnedSpecimenIdentity(x:SpecimenIdentity):void { if(x.repository!=="TsatsuAmable/nemosyne"||x.protocolVersion!=="1"||!x.commit.trim()||!x.buildHash.trim()) throw new Error("experiment requires a pinned nemosyne specimen identity"); }

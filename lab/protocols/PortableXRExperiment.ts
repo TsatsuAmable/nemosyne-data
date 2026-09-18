@@ -1,4 +1,4 @@
-﻿import { sha256 } from '@noble/hashes/sha2.js';
+import { sha256 } from '@noble/hashes/sha2.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
 import { buildArchitectureCampaign, type XRArchitectureCampaignRun } from './XRArchitectureCampaign.ts';
 import type { XRExperimentArchitecture } from './XRExperimentEvidenceContract.ts';
@@ -14,6 +14,7 @@ export function parsePortableExperimentConfig(value:unknown):PortableXRExperimen
  if(c.schemaVersion!==1)throw new Error('unsupported experiment config schema');
  for(const field of ['protocolId','protocolVersion','replayTraceId','resourceBudgetId'] as const)if(typeof c[field]!=='string'||!c[field]!.trim())throw new Error(`experiment config requires ${field}`);
  if(!c.dataset||!c.dataset.id?.trim()||!c.dataset.fingerprint?.trim()||!c.dataset.oracleId?.trim())throw new Error('experiment config requires dataset identity and oracle');
+ if(c.dataset.fingerprint==='REQUIRED_AT_RUN_TIME')throw new Error('experiment config requires a resolved dataset fingerprint');
  if(!Array.isArray(c.architectures)||c.architectures.length!==3||REQUIRED_ARMS.some(a=>!c.architectures!.includes(a)))throw new Error('experiment config requires exactly the three registered architecture arms');
  if(!Array.isArray(c.seeds)||c.seeds.length===0)throw new Error('experiment config requires seeds');
  if(c.perturbations){if(!Number.isInteger(c.perturbations.data?.runs)||c.perturbations.data.runs < 1||!Number.isFinite(c.perturbations.data.magnitude)||c.perturbations.data.magnitude < 0)throw new Error('invalid data perturbation configuration');if(!Array.isArray(c.perturbations.runtime?.scenarios))throw new Error('invalid runtime perturbation scenarios');if(c.perturbations.experimental?.counterbalanceArmOrder!==true)throw new Error('experiment perturbations require deterministic counterbalance arm order');}

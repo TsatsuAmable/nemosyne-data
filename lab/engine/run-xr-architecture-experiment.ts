@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises'; import path from 'node:path'; import { execFileSync } from 'node:child_process';
-import { parsePortableExperimentConfig, buildPortableExperimentBundle, verifyPortableExperimentBundle } from '../dev/xr-lab/PortableXRExperiment.ts';
+import { parsePortableExperimentConfig, buildPortableExperimentBundle, verifyPortableExperimentBundle } from '../protocols/PortableXRExperiment.ts';
 const args=process.argv.slice(2), i=args.indexOf('--config'); if(i<0||!args[i+1])throw new Error('usage: --config <experiment.json>');
 const configPath=path.resolve(args[i+1]); const raw=JSON.parse((await fs.readFile(configPath,'utf8')).replace(/^\uFEFF/,''));
 const config=parsePortableExperimentConfig(raw); let buildHash=process.env.NEMOSYNE_BUILD_HASH;

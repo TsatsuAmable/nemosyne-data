@@ -1,9 +1,9 @@
-import type { DatasetJSON } from '../../src/data/types.ts';
+import type { DatasetJSON } from '../protocols/NemosyneSpecimenProtocol.ts';
 import { MONETA_BENCHMARK_FAMILIES } from './MonetaBenchmarkCorpus.ts';
 import {
   adjudicateBenchmarkCandidate,
   type MonetaEvidenceDecision,
-} from './MonetaEvidenceProtocol.ts';
+} from '../protocols/MonetaEvidenceProtocol.ts';
 
 export interface KnownStructurePoint {
   x: number;
