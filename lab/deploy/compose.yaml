@@ -6,7 +6,7 @@ services:
       dockerfile: lab/deploy/Dockerfile
     environment:
       NEMOSYNE_LAB_PROFILE: ${NEMOSYNE_LAB_PROFILE:-full}
-      NEMOSYNE_COORDINATION_URL: ${NEMOSYNE_COORDINATION_URL:-postgresql://lab:lab@catalogue:5432/lab}
+      NEMOSYNE_CONTROL_DATABASE_URL: ${NEMOSYNE_CONTROL_DATABASE_URL:-postgresql://lab:lab@catalogue:5432/lab}
       NEMOSYNE_ARTIFACT_ENDPOINT: ${NEMOSYNE_ARTIFACT_ENDPOINT:-http://artifacts:9000}
     depends_on:
       catalogue:

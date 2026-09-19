@@ -738,3 +738,17 @@ The lab exposes a vendor-neutral, self-describing control contract for LLM/agent
 Portable operator skills live under `lab/skills/` and teach an unfamiliar agent to discover live capabilities before acting, preserve native adjudication authority, distinguish simulator/physical/human evidence, and treat new research protocols as exploratory until reviewed.
 
 Writable execution tools are a later promotion step and require authenticated identity, scoped authorization, resource budgets, idempotency, immutable audit events, lease-backed native workers and durable artifact acknowledgement. LLM output is never itself evidence of execution or qualification.
+
+## Compute maturity and control-plane placement (2026-09-19)
+
+Compute expands with Nemosyne's evidence needs rather than ahead of them.
+
+C0 MacBook: primary laboratory through Quest qualification and web productionization. Docker Compose may host the coordinator, PostgreSQL, artifact storage and local VSL/RFL workers. PostgreSQL stores compact control-plane metadata only, never bulk scientific artifacts.
+
+C1 Fedora: first remote disposable-worker rehearsal. The authoritative coordinator, PostgreSQL and artifact store initially remain on the MacBook. Fedora uses the Lab worker API rather than database access. Destroy, rebuild and rejoin is the first portability acceptance test.
+
+C2 investigator and Learned Moneta expansion: after Quest qualification, web productionization and investigator qualification, Beam, AMD and other external compute join as ephemeral workers. The control plane may then move to a persistent or managed host if workload requires it.
+
+C3 Full Moneta: large perturbation, compute-staircase, representation-search, cross-runtime and sealed-confirmation campaigns may fan out across heterogeneous providers. Control-plane scaling remains an operational decision, not an experiment-protocol change.
+
+External workers do not connect directly to PostgreSQL. PostgreSQL is private to the control plane. Workers use an authenticated coordinator API for registration, leasing, heartbeat, checkpoint acknowledgement and terminal reporting. The same versioned lab image/profile remains deployable by Docker Compose and later provider-specific container or batch launchers without changing experiment semantics.
