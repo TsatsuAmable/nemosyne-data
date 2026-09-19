@@ -26,7 +26,11 @@
     "lab:http:selftest": "node --experimental-strip-types lab/distributed/http-selftest.ts",
     "lab:coordinator": "node --experimental-strip-types lab/distributed/run-coordinator.ts",
     "lab:worker:canary": "node --experimental-strip-types lab/distributed/run-worker-canary.ts",
-    "lab:parity:selftest": "node --experimental-strip-types lab/parity-selftest.ts"
+    "lab:parity:selftest": "node --experimental-strip-types lab/parity-selftest.ts",
+    "lab:orchestration:selftest": "node --experimental-strip-types lab/distributed/orchestration-selftest.ts",
+    "lab:work:submit": "node --experimental-strip-types lab/scheduler/submit-change-work.ts",
+    "lab:worker": "node --experimental-strip-types lab/distributed/run-native-worker.ts",
+    "lab:worker:selftest": "node --experimental-strip-types lab/distributed/native-adapter-selftest.ts"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
