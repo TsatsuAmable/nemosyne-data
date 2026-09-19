@@ -1,10 +1,8 @@
-import { strict as assert } from 'node:assert'; import fs from 'node:fs/promises';
-import { jobsForMerge,spawnRemediation,spawnJustInTimeReview } from './WorkEvidenceScheduler.ts';
-import { runnable,upsertJob,loadLedger,saveLedger,type LabLedger } from './LabJobLedger.ts';
-const jobs=jobsForMerge({specimenSha:'825da88d1529486c8e7891825b9faa1946412c21',sourcePr:772,mergedAt:'2026-09-19T00:00:00Z'});
-assert.deepEqual(jobs.map(j=>j.kind),['deterministic','xr-simulation','quest-automation']); assert(jobs.every(j=>j.specimenSha.startsWith('825da88d')));
-let ledger:LabLedger={version:1,jobs:[]}; for(const j of jobs)ledger=upsertJob(ledger,j); assert.equal(runnable(ledger).length,3);
-jobs[1]!.status='FINDING'; const fix=spawnRemediation(jobs[1]!); assert.equal(fix.dependsOn[0],jobs[1]!.id); assert.equal(jobs[1]!.successorIds[0],fix.id);
-const review=spawnJustInTimeReview(jobs[1]!,['xr-lifecycle']); assert.equal(review.kind,'adversarial-review'); assert.equal(review.specimenSha,jobs[1]!.specimenSha);
-const path='.scheduler-selftest.json'; await saveLedger(path,ledger); assert.equal((await loadLedger(path)).jobs.length,3); await fs.unlink(path);
-console.log('scheduler self-test: PASS');
+import{strict as assert}from'node:assert';import fs from'node:fs/promises';
+import{plannedRefsForMerge,attachNativeRun,recordNativeDisposition,needsFollowup}from'./WorkEvidenceScheduler.ts';
+import{upsertRef,openWork,findings,staleForSpecimen,saveLedger,loadLedger,type CoordinationLedger}from'./LabJobLedger.ts';
+const sha='825da88d1529486c8e7891825b9faa1946412c21';const refs=plannedRefsForMerge({specimenSha:sha,sourcePr:772,mergedAt:'2026-09-19T00:00:00Z'});
+assert.deepEqual(refs.map(x=>x.system),['nemosyne-xr-simulator','nemosyne-qv','nemosyne-data-campaign']);
+let l:CoordinationLedger={version:1,work:[]};for(const r of refs)l=upsertRef(l,r);assert.equal(openWork(l).length,3);
+const qv=recordNativeDisposition(attachNativeRun(refs[1]!,'QV4-825da88-001'),'FAIL',['evidence/qv.json']);l=upsertRef(l,qv);assert(needsFollowup(qv));assert.equal(findings(l).length,1);assert.equal(staleForSpecimen(l,'newsha').length,2); assert.equal(staleForSpecimen(l,sha).length,0);
+const p='.scheduler-selftest.json';await saveLedger(p,l);assert.equal((await loadLedger(p)).work.length,3);await fs.unlink(p);console.log('coordination index self-test: PASS');
