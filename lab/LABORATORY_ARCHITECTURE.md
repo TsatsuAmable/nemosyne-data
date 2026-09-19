@@ -720,3 +720,13 @@ These references establish feasibility and reusable mechanisms, not proof of Mon
 - **[R5]** Kuchibhotla, A. K., Kolassa, J. E., & Kuffner, T. A. (2022). *Post-Selection Inference*. Annual Review of Statistics and Its Application, 9, 505-527. DOI: 10.1146/annurev-statistics-100421-044639.
 - **[R6]** Dwork, C., Feldman, V., Hardt, M., Pitassi, T., Reingold, O., & Roth, A. (2015). *The reusable holdout: Preserving validity in adaptive data analysis*. Science, 349(6248), 636-638. DOI: 10.1126/science.aaa9375.
 - **[R7]** Skarbez, R., Polys, N. F., Ogle, J. T., North, C., & Bowman, D. A. (2019). *Immersive Analytics: Theory and Research Agenda*. Frontiers in Robotics and AI, 6:82. DOI: 10.3389/frobt.2019.00082.
+
+## Distributed laboratory deployment and durable result retention (2026-09-19)
+
+The laboratory is deployable as independently selectable `vsl`, `rfl`, or `full` profiles. Compute workers and clusters are disposable. No worker filesystem is an authoritative evidence store.
+
+The durable result model is `Job -> Run -> Artifact -> Evidence -> Finding -> Claim`. Every run binds an exact specimen SHA, protocol/version, worker and runtime lineage. Raw/large artifacts are content-addressed by SHA-256; the evidence catalogue stores compact identities, dispositions and relationships. Git remains the curated scientific record rather than the bulk artifact transport.
+
+Production deployments may replace the local file catalogue and local CAS with transactional/shared catalogue and S3-compatible object storage adapters without changing these contracts. A worker may report a unit complete only after required artifacts are durably stored and catalogue registration succeeds. Long campaigns should checkpoint externally at protocol-defined boundaries.
+
+The coordination plane and evidence plane are distinct: coordination answers what should run and which worker holds a lease; evidence answers what ran, what immutable artifacts resulted, what finding was adjudicated and which claim/specimen it applies to. VSL and RFL share this substrate while remaining independently packageable.

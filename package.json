@@ -18,7 +18,8 @@
     "lab:capacity": "node --experimental-strip-types lab/engine/run-local-capacity-envelope.ts",
     "lab:scheduler:selftest": "node --experimental-strip-types lab/scheduler/scheduler-selftest.ts",
     "lab:scheduler:index": "node --experimental-strip-types lab/scheduler/index-native-evidence.ts",
-    "lab:scheduler:impact-selftest": "node --experimental-strip-types lab/scheduler/change-impact-selftest.ts"
+    "lab:scheduler:impact-selftest": "node --experimental-strip-types lab/scheduler/change-impact-selftest.ts",
+    "lab:evidence:selftest": "node --experimental-strip-types lab/evidence/evidence-selftest.ts"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
