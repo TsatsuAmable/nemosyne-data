@@ -1,0 +1,5 @@
+{
+  "vsl": ["playwright-browser", "xr-simulator", "quest-qv"],
+  "rfl": ["known-structure", "perturbation-campaign", "adversarial-review"],
+  "full": ["playwright-browser", "xr-simulator", "quest-qv", "known-structure", "perturbation-campaign", "adversarial-review"]
+}

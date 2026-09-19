@@ -720,3 +720,35 @@ These references establish feasibility and reusable mechanisms, not proof of Mon
 - **[R5]** Kuchibhotla, A. K., Kolassa, J. E., & Kuffner, T. A. (2022). *Post-Selection Inference*. Annual Review of Statistics and Its Application, 9, 505-527. DOI: 10.1146/annurev-statistics-100421-044639.
 - **[R6]** Dwork, C., Feldman, V., Hardt, M., Pitassi, T., Reingold, O., & Roth, A. (2015). *The reusable holdout: Preserving validity in adaptive data analysis*. Science, 349(6248), 636-638. DOI: 10.1126/science.aaa9375.
 - **[R7]** Skarbez, R., Polys, N. F., Ogle, J. T., North, C., & Bowman, D. A. (2019). *Immersive Analytics: Theory and Research Agenda*. Frontiers in Robotics and AI, 6:82. DOI: 10.3389/frobt.2019.00082.
+
+## Distributed laboratory deployment and durable result retention (2026-09-19)
+
+The laboratory is deployable as independently selectable `vsl`, `rfl`, or `full` profiles. Compute workers and clusters are disposable. No worker filesystem is an authoritative evidence store.
+
+The durable result model is `Job -> Run -> Artifact -> Evidence -> Finding -> Claim`. Every run binds an exact specimen SHA, protocol/version, worker and runtime lineage. Raw/large artifacts are content-addressed by SHA-256; the evidence catalogue stores compact identities, dispositions and relationships. Git remains the curated scientific record rather than the bulk artifact transport.
+
+Production deployments may replace the local file catalogue and local CAS with transactional/shared catalogue and S3-compatible object storage adapters without changing these contracts. A worker may report a unit complete only after required artifacts are durably stored and catalogue registration succeeds. Long campaigns should checkpoint externally at protocol-defined boundaries.
+
+The coordination plane and evidence plane are distinct: coordination answers what should run and which worker holds a lease; evidence answers what ran, what immutable artifacts resulted, what finding was adjudicated and which claim/specimen it applies to. VSL and RFL share this substrate while remaining independently packageable.
+
+## LLM-facing control plane (LAB-AI0, 2026-09-19)
+
+The lab exposes a vendor-neutral, self-describing control contract for LLM/agent orchestration. The initial surface is deliberately non-executing: `lab.describe`, `capabilities.list`, `work.plan`, `claims.status`, `runs.status`, `evidence.query`, and `findings.list`. `work.plan` delegates to the deterministic capability/claim graph; it does not let an LLM manufacture experimental semantics or claim execution.
+
+Portable operator skills live under `lab/skills/` and teach an unfamiliar agent to discover live capabilities before acting, preserve native adjudication authority, distinguish simulator/physical/human evidence, and treat new research protocols as exploratory until reviewed.
+
+Writable execution tools are a later promotion step and require authenticated identity, scoped authorization, resource budgets, idempotency, immutable audit events, lease-backed native workers and durable artifact acknowledgement. LLM output is never itself evidence of execution or qualification.
+
+## Compute maturity and control-plane placement (2026-09-19)
+
+Compute expands with Nemosyne's evidence needs rather than ahead of them.
+
+C0 MacBook: primary laboratory through Quest qualification and web productionization. Docker Compose may host the coordinator, PostgreSQL, artifact storage and local VSL/RFL workers. PostgreSQL stores compact control-plane metadata only, never bulk scientific artifacts.
+
+C1 Fedora: first remote disposable-worker rehearsal. The authoritative coordinator, PostgreSQL and artifact store initially remain on the MacBook. Fedora uses the Lab worker API rather than database access. Destroy, rebuild and rejoin is the first portability acceptance test.
+
+C2 investigator and Learned Moneta expansion: after Quest qualification, web productionization and investigator qualification, Beam, AMD and other external compute join as ephemeral workers. The control plane may then move to a persistent or managed host if workload requires it.
+
+C3 Full Moneta: large perturbation, compute-staircase, representation-search, cross-runtime and sealed-confirmation campaigns may fan out across heterogeneous providers. Control-plane scaling remains an operational decision, not an experiment-protocol change.
+
+External workers do not connect directly to PostgreSQL. PostgreSQL is private to the control plane. Workers use an authenticated coordinator API for registration, leasing, heartbeat, checkpoint acknowledgement and terminal reporting. The same versioned lab image/profile remains deployable by Docker Compose and later provider-specific container or batch launchers without changing experiment semantics.

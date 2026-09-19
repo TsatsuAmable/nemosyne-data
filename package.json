@@ -15,7 +15,13 @@
     "validate:known-answers": "node scripts/validate-known-answers.mjs",
     "lab:typecheck": "tsc --noEmit -p lab/tsconfig.json",
     "lab:experiment": "node --experimental-strip-types lab/engine/run-xr-architecture-experiment.ts",
-    "lab:capacity": "node --experimental-strip-types lab/engine/run-local-capacity-envelope.ts"
+    "lab:capacity": "node --experimental-strip-types lab/engine/run-local-capacity-envelope.ts",
+    "lab:scheduler:selftest": "node --experimental-strip-types lab/scheduler/scheduler-selftest.ts",
+    "lab:scheduler:index": "node --experimental-strip-types lab/scheduler/index-native-evidence.ts",
+    "lab:scheduler:impact-selftest": "node --experimental-strip-types lab/scheduler/change-impact-selftest.ts",
+    "lab:evidence:selftest": "node --experimental-strip-types lab/evidence/evidence-selftest.ts",
+    "lab:control:selftest": "node --experimental-strip-types lab/control/control-selftest.ts",
+    "lab:distributed:selftest": "node --experimental-strip-types lab/distributed/worker-protocol-selftest.ts"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

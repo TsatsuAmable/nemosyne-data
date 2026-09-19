@@ -1,0 +1,11 @@
+import type{WorkerId,Stream}from'../scheduler/CapabilityClaimGraph.ts';
+export type JobState='READY'|'LEASED'|'RUNNING'|'TERMINAL'|'CANCELLED';
+export interface LabJob{jobId:string;specimenSha:string;stream:Stream;worker:WorkerId;claims:string[];state:JobState;createdAt:string;nativeDisposition?:string;evidenceRefs:string[];lease?:{workerId:string;token:string;expiresAt:string};}
+export interface WorkerRegistration{workerId:string;profile:'vsl'|'rfl'|'full';capabilities:WorkerId[];registeredAt:string;}
+const exactSha=(x:string)=>/^[0-9a-f]{40}$/i.test(x);
+export function createJob(x:Omit<LabJob,'state'|'evidenceRefs'>):LabJob{if(!x.jobId||!exactSha(x.specimenSha))throw new Error('job requires id and exact specimen SHA');return{...x,state:'READY',evidenceRefs:[]};}
+export function leaseJob(j:LabJob,w:WorkerRegistration,now:Date,ttlMs:number,token:string):LabJob{if(j.state!=='READY')throw new Error('job not ready');if(!w.capabilities.includes(j.worker))throw new Error('worker lacks capability');if(ttlMs<=0||!token)throw new Error('valid lease required');return{...j,state:'LEASED',lease:{workerId:w.workerId,token,expiresAt:new Date(now.getTime()+ttlMs).toISOString()}};}
+export function startJob(j:LabJob,token:string,now:Date):LabJob{if(j.state!=='LEASED'||j.lease?.token!==token||Date.parse(j.lease.expiresAt)<=now.getTime())throw new Error('active lease required');return{...j,state:'RUNNING'};}
+export function renewLease(j:LabJob,token:string,now:Date,ttlMs:number):LabJob{if(!j.lease||j.lease.token!==token||Date.parse(j.lease.expiresAt)<=now.getTime())throw new Error('active lease required');return{...j,lease:{...j.lease,expiresAt:new Date(now.getTime()+ttlMs).toISOString()}};}
+export function reclaimExpired(j:LabJob,now:Date):LabJob{return j.lease&&Date.parse(j.lease.expiresAt)<=now.getTime()&&j.state!=='TERMINAL'?{...j,state:'READY',lease:undefined}:j;}
+export function completeJob(j:LabJob,token:string,disposition:string,evidenceRefs:string[]):LabJob{if(j.state!=='RUNNING'||j.lease?.token!==token)throw new Error('running leased job required');if(!disposition||!evidenceRefs.length)throw new Error('durable evidence acknowledgement required');return{...j,state:'TERMINAL',nativeDisposition:disposition,evidenceRefs:[...evidenceRefs],lease:undefined};}

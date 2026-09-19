@@ -1,0 +1,42 @@
+name: nemosyne-data-lab
+services:
+  lab:
+    build:
+      context: ../..
+      dockerfile: lab/deploy/Dockerfile
+    environment:
+      NEMOSYNE_LAB_PROFILE: ${NEMOSYNE_LAB_PROFILE:-full}
+      NEMOSYNE_CONTROL_DATABASE_URL: ${NEMOSYNE_CONTROL_DATABASE_URL:-postgresql://lab:lab@catalogue:5432/lab}
+      NEMOSYNE_ARTIFACT_ENDPOINT: ${NEMOSYNE_ARTIFACT_ENDPOINT:-http://artifacts:9000}
+    depends_on:
+      catalogue:
+        condition: service_healthy
+      artifacts:
+        condition: service_started
+    volumes:
+      - lab-checkpoints:/checkpoints
+  catalogue:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-lab}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lab}
+      POSTGRES_DB: ${POSTGRES_DB:-lab}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-lab}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - catalogue-data:/var/lib/postgresql/data
+  artifacts:
+    image: minio/minio:latest
+    command: server /data --console-address :9001
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-labadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-change-me-lab-password}
+    volumes:
+      - artifact-data:/data
+volumes:
+  catalogue-data: {}
+  artifact-data: {}
+  lab-checkpoints: {}
