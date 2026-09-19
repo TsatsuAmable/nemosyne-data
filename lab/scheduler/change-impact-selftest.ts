@@ -1,0 +1,14 @@
+import {strict as assert} from 'node:assert';
+import {selectWork} from './CapabilityClaimGraph.ts';
+const sha='825da88d1529486c8e7891825b9faa1946412c21';
+const semantic=selectWork({specimenSha:sha,changedCapabilities:['semantic-detail','resource-lifecycle']});
+assert(semantic.some(x=>x.worker==='known-structure'));
+assert(semantic.some(x=>x.worker==='perturbation-campaign'));
+assert(semantic.some(x=>x.worker==='xr-simulator'));
+assert(semantic.some(x=>x.worker==='quest-qv'&&x.cost==='EXPENSIVE'));
+const desktop=selectWork({specimenSha:sha,changedCapabilities:['desktop-ui']});
+assert.deepEqual(desktop.map(x=>x.worker),['playwright-browser']);
+const novel=selectWork({specimenSha:sha,changedCapabilities:['new-unclassified-subsystem']});
+assert.equal(novel.length,1);assert.equal(novel[0]?.worker,'adversarial-review');
+assert.throws(()=>selectWork({specimenSha:'short',changedCapabilities:['desktop-ui']}));
+console.log('change impact self-test: PASS');
