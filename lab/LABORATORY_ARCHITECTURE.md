@@ -730,3 +730,11 @@ The durable result model is `Job -> Run -> Artifact -> Evidence -> Finding -> Cl
 Production deployments may replace the local file catalogue and local CAS with transactional/shared catalogue and S3-compatible object storage adapters without changing these contracts. A worker may report a unit complete only after required artifacts are durably stored and catalogue registration succeeds. Long campaigns should checkpoint externally at protocol-defined boundaries.
 
 The coordination plane and evidence plane are distinct: coordination answers what should run and which worker holds a lease; evidence answers what ran, what immutable artifacts resulted, what finding was adjudicated and which claim/specimen it applies to. VSL and RFL share this substrate while remaining independently packageable.
+
+## LLM-facing control plane (LAB-AI0, 2026-09-19)
+
+The lab exposes a vendor-neutral, self-describing control contract for LLM/agent orchestration. The initial surface is deliberately non-executing: `lab.describe`, `capabilities.list`, `work.plan`, `claims.status`, `runs.status`, `evidence.query`, and `findings.list`. `work.plan` delegates to the deterministic capability/claim graph; it does not let an LLM manufacture experimental semantics or claim execution.
+
+Portable operator skills live under `lab/skills/` and teach an unfamiliar agent to discover live capabilities before acting, preserve native adjudication authority, distinguish simulator/physical/human evidence, and treat new research protocols as exploratory until reviewed.
+
+Writable execution tools are a later promotion step and require authenticated identity, scoped authorization, resource budgets, idempotency, immutable audit events, lease-backed native workers and durable artifact acknowledgement. LLM output is never itself evidence of execution or qualification.

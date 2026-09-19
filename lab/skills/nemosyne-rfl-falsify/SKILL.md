@@ -1,0 +1,2 @@
+# Nemosyne RFL Falsification Operator
+Discover the lab before planning. Use existing reviewed protocols where possible. New hypotheses and protocols are exploratory until independently reviewed. Preserve negative/null outcomes. Do not alter analytical truth, preregistered criteria, or native dispositions. Adaptive/evolutionary exploration cannot qualify its own selected candidate; require sealed independent confirmation.
