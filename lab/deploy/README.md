@@ -1,12 +1,18 @@
 # Portable laboratory deployment
 
-Profiles are declared in `profiles.json`: `vsl`, `rfl`, and `full`. The included container is the portable base and deliberately contains no authoritative cluster-local state.
+The lab is Docker Compose portable. `vsl`, `rfl`, and `full` are deployment profiles; experiments remain provider-neutral.
 
-Local smoke build:
+## Self-contained node
+`./lab/deploy/bootstrap.sh rfl` builds and starts the lab plus PostgreSQL catalogue/coordination service and S3-compatible MinIO artifact service. Named volumes make this convenient for a durable single host, but a disposable cluster should not rely on those volumes.
 
+## Ephemeral worker cluster
+Point workers at externally durable services and use `compose.worker.yaml`:
 ```sh
-docker compose -f lab/deploy/compose.yaml build
-NEMOSYNE_LAB_PROFILE=rfl docker compose -f lab/deploy/compose.yaml run --rm lab run lab:typecheck
+NEMOSYNE_LAB_PROFILE=vsl \
+NEMOSYNE_COORDINATION_URL='postgresql://...' \
+NEMOSYNE_ARTIFACT_ENDPOINT='https://...' \
+docker compose -f lab/deploy/compose.worker.yaml up --build
 ```
+The external services, not the worker cluster, retain authoritative state. Provider launchers may wrap the same image for Kubernetes, Slurm or batch systems.
 
-The current file catalogue/CAS are reference adapters for local execution and contract testing. External-cluster rollout must bind equivalent shared durable adapters (for example a transactional catalogue plus S3-compatible object storage) before workers are allowed to claim durable completion. Provider-specific launchers belong above this image, not inside experiment semantics.
+The current TypeScript file catalogue/CAS remain reference/local adapters. PostgreSQL/S3 environment wiring is now part of the deployment contract; concrete network adapters and schema migration are the next storage tranche before external workers may claim production durability.

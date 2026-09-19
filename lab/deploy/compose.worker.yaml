@@ -1,0 +1,10 @@
+name: nemosyne-data-worker
+services:
+  lab:
+    build:
+      context: ../..
+      dockerfile: lab/deploy/Dockerfile
+    environment:
+      NEMOSYNE_LAB_PROFILE: ${NEMOSYNE_LAB_PROFILE:-rfl}
+      NEMOSYNE_COORDINATION_URL: ${NEMOSYNE_COORDINATION_URL:?set remote coordination URL}
+      NEMOSYNE_ARTIFACT_ENDPOINT: ${NEMOSYNE_ARTIFACT_ENDPOINT:?set remote artifact endpoint}
