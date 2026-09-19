@@ -1,0 +1,10 @@
+import crypto from'node:crypto';import type{WorkerId}from'../scheduler/CapabilityClaimGraph.ts';import type{CoordinationStore}from'./CoordinationStore.ts';import{createJob,leaseJob,startJob,renewLease,reclaimExpired,completeJob,type LabJob,type WorkerRegistration}from'./WorkProtocol.ts';
+export class CoordinatorService{private store:CoordinationStore;private leaseMs:number;constructor(store:CoordinationStore,leaseMs=60000){this.store=store;this.leaseMs=leaseMs}
+ async registerWorker(w:WorkerRegistration){const s=await this.store.load();s.workers=[...s.workers.filter(x=>x.workerId!==w.workerId),w];await this.store.save(s);return w;}
+ async submitJob(x:{jobId:string;specimenSha:string;stream:'VSL'|'RFL';worker:WorkerId;claims:string[];createdAt:string}){const s=await this.store.load();const prior=s.jobs.find(j=>j.jobId===x.jobId);if(prior)return prior;const j=createJob(x);s.jobs.push(j);await this.store.save(s);return j;}
+ async claim(workerId:string,now=new Date()){const s=await this.store.load();s.jobs=s.jobs.map(j=>reclaimExpired(j,now));const w=s.workers.find(x=>x.workerId===workerId);if(!w)throw new Error('unknown worker');const candidate=s.jobs.find(j=>j.state==='READY'&&w.capabilities.includes(j.worker));if(!candidate){await this.store.save(s);return null;}const token=crypto.randomUUID();const leased=leaseJob(candidate,w,now,this.leaseMs,token);s.jobs=s.jobs.map(j=>j.jobId===leased.jobId?leased:j);await this.store.save(s);return leased;}
+ async start(jobId:string,token:string,now=new Date()){return this.mutate(jobId,j=>startJob(j,token,now));}
+ async heartbeat(jobId:string,token:string,now=new Date()){return this.mutate(jobId,j=>renewLease(j,token,now,this.leaseMs));}
+ async complete(jobId:string,token:string,disposition:string,evidenceRefs:string[]){return this.mutate(jobId,j=>completeJob(j,token,disposition,evidenceRefs));}
+ async listJobs(){return(await this.store.load()).jobs;}
+ private async mutate(jobId:string,f:(j:LabJob)=>LabJob){const s=await this.store.load();const i=s.jobs.findIndex(j=>j.jobId===jobId);if(i<0)throw new Error('unknown job');const out=f(s.jobs[i]!);s.jobs[i]=out;await this.store.save(s);return out;}}

@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "jobs": [
+    {
+      "jobId": "fedora-recovery-canary",
+      "specimenSha": "d32cd9f0fff468573ee0d4ff3184f08fd3127cfe",
+      "stream": "RFL",
+      "worker": "known-structure",
+      "claims": [
+        "portability-recovery"
+      ],
+      "createdAt": "2026-09-19T05:46:05.999Z",
+      "state": "TERMINAL",
+      "evidenceRefs": [
+        "canary:fedora-rebuilt:d32cd9f0fff468573ee0d4ff3184f08fd3127cfe"
+      ],
+      "nativeDisposition": "RECORDED"
+    }
+  ],
+  "workers": [
+    {
+      "workerId": "fedora-crash",
+      "profile": "rfl",
+      "capabilities": [
+        "known-structure"
+      ],
+      "registeredAt": "2026-09-19T05:48:50.485Z"
+    },
+    {
+      "workerId": "fedora-rebuilt",
+      "profile": "rfl",
+      "capabilities": [
+        "known-structure"
+      ],
+      "registeredAt": "2026-09-19T05:49:00.039Z"
+    }
+  ]
+}
