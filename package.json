@@ -25,7 +25,8 @@
     "lab:coordinator:selftest": "node --experimental-strip-types lab/distributed/coordinator-selftest.ts",
     "lab:http:selftest": "node --experimental-strip-types lab/distributed/http-selftest.ts",
     "lab:coordinator": "node --experimental-strip-types lab/distributed/run-coordinator.ts",
-    "lab:worker:canary": "node --experimental-strip-types lab/distributed/run-worker-canary.ts"
+    "lab:worker:canary": "node --experimental-strip-types lab/distributed/run-worker-canary.ts",
+    "lab:parity:selftest": "node --experimental-strip-types lab/parity-selftest.ts"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
