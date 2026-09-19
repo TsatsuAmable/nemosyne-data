@@ -16,7 +16,8 @@
     "lab:typecheck": "tsc --noEmit -p lab/tsconfig.json",
     "lab:experiment": "node --experimental-strip-types lab/engine/run-xr-architecture-experiment.ts",
     "lab:capacity": "node --experimental-strip-types lab/engine/run-local-capacity-envelope.ts",
-    "lab:scheduler:selftest": "node --experimental-strip-types lab/scheduler/scheduler-selftest.ts"
+    "lab:scheduler:selftest": "node --experimental-strip-types lab/scheduler/scheduler-selftest.ts",
+    "lab:scheduler:index": "node --experimental-strip-types lab/scheduler/index-native-evidence.ts"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
