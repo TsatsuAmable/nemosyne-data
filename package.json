@@ -23,7 +23,9 @@
     "lab:control:selftest": "node --experimental-strip-types lab/control/control-selftest.ts",
     "lab:distributed:selftest": "node --experimental-strip-types lab/distributed/worker-protocol-selftest.ts",
     "lab:coordinator:selftest": "node --experimental-strip-types lab/distributed/coordinator-selftest.ts",
-    "lab:http:selftest": "node --experimental-strip-types lab/distributed/http-selftest.ts"
+    "lab:http:selftest": "node --experimental-strip-types lab/distributed/http-selftest.ts",
+    "lab:coordinator": "node --experimental-strip-types lab/distributed/run-coordinator.ts",
+    "lab:worker:canary": "node --experimental-strip-types lab/distributed/run-worker-canary.ts"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
