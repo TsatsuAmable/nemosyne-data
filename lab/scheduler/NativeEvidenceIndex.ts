@@ -13,3 +13,7 @@ export async function indexXRArchitectureArtifacts(root:string):Promise<NativeWo
  for(const name of names.filter(n=>n.endsWith('.json'))){const file=path.join(root,name);try{const x=await read(file);const sha=String(x?.specimen?.commit??x?.specimenSha??x?.buildHash??'');if(!/^[0-9a-f]{40}$/i.test(sha))continue;out.push({system:'nemosyne-data-campaign',nativeId:String(x.bundleHash??x.campaignId??name),specimenSha:sha,status:'TERMINAL',nativeDisposition:String(x.status??'RECORDED'),evidenceRefs:[path.relative(process.cwd(),file)]});}catch{}}
  return out;
 }
+export async function indexQuestEvidenceRoots(roots:readonly string[]):Promise<NativeWorkRef[]>{
+ const byId=new Map<string,NativeWorkRef>();for(const root of roots){let refs:NativeWorkRef[]=[];try{refs=await indexPreservedQuestEvidence(root);}catch{}for(const r of refs){const prior=byId.get(r.nativeId);if(!prior||prior.status!=='TERMINAL'||r.status==='TERMINAL')byId.set(r.nativeId,r);}}
+ return [...byId.values()];
+}
