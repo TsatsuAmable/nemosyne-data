@@ -16,7 +16,7 @@ This register prevents simulation, verification, and device-qualification subsys
 - Tier-4 system scenarios: scale, collaboration, long-running session, fault-tolerant streaming and complete analyst journey.
 - Governed physical Quest QV: quest scripts plus validation adjudication/finalization/custody.
 - Portable XR architecture campaigns: nemosyne-data/lab/xr-architecture.
-- Perturbation and known-structure campaigns: nemosyne-data laboratory protocols/benchmarks/perturbations.
+- Perturbation and known-structure campaigns: nemosyne-data laboratory protocols/benchmarks/perturbations. The RFL `perturbation-campaign` worker is bound by `lab/config/perturbation-campaign.default.json` to exact-SHA native Nemosyne falsifiers; the config declares supported and prohibited claims and is hashed into evidence.
 
 ## Professional and cross-vendor targets
 These are integration targets, not claims of current physical qualification.

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "rfl-core-perturbation-v1",
+  "runner": "nemosyne-vitest",
+  "suites": [
+    {
+      "id": "semantic-structure-wasm",
+      "vitestConfig": "vitest.wasm.config.ts",
+      "requiresWasm": true,
+      "tests": [
+        "tests/moneta-known-structure-campaign-wasm.test.ts"
+      ],
+      "claims": [
+        "semantic-preservation"
+      ]
+    },
+    {
+      "id": "resource-lifecycle-falsifiers",
+      "vitestConfig": "vitest.config.ts",
+      "requiresWasm": false,
+      "tests": [
+        "tests/representation-resource-lifecycle.test.ts",
+        "tests/resource-lifecycle-governor.test.ts"
+      ],
+      "claims": [
+        "bounded-runtime-resources"
+      ]
+    }
+  ],
+  "prohibitedClaims": [
+    "human-qualification",
+    "device-qualification",
+    "physical-memory-performance"
+  ]
+}
