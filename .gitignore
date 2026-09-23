@@ -5,5 +5,6 @@ data/synthetic/*/large.csv
 data/synthetic/*/xlarge.csv
 
 lab/xr-architecture/artifacts/
+.lab-state/
 
 node_modules/
