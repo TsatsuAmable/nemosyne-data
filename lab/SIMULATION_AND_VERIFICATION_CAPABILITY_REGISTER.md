@@ -8,7 +8,7 @@ This register prevents simulation, verification, and device-qualification subsys
 
 ## Existing capabilities
 - Playwright production-browser verification: nemosyne/playwright.config.ts and tests/smoke. Real production-build browser evidence. Currently Chromium/Desktop Chrome only.
-- USIM WebXR/IWER: nemosyne/dev/xr-simulator. Controller, hand/pinch, 6DoF pose and deterministic scenarios.
+- USIM WebXR/IWER: nemosyne/dev/xr-simulator. Controller, hand/pinch, 6DoF pose and deterministic scenarios. The VSL `xr-simulator` worker executes the native Nemosyne Vitest surface only when `NEMOSYNE_SOURCE_ROOT` is clean and exactly matches the job specimen SHA; otherwise it records `ABSTAIN`.
 - USIM-A lifecycle: LifecycleScenarioRunner. XR enter/exit/re-entry, stale async work, generation/concurrency races.
 - XR experimental matrix: nemosyne/dev/xr-lab/ExperimentalProfiles.ts. Device x fault x dataset x repetition experiments.
 - Device envelopes: Quest 3-class, Quest 2-class, Quest Pro-class, generic WebXR 6DoF, constrained standalone, and Apple-like transient-pointer contract.
