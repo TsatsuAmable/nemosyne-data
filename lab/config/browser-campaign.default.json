@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "vsl-desktop-product-operability-v1",
+  "runner": "nemosyne-playwright",
+  "playwrightConfig": "playwright.config.ts",
+  "tests": [
+    "tests/smoke/load.spec.ts",
+    "tests/smoke/analyst-journey.spec.ts",
+    "tests/smoke/p1-uv1-task-first-shell.spec.ts"
+  ],
+  "claims": [
+    "desktop-product-operability"
+  ],
+  "prohibitedClaims": [
+    "xr-interaction-correctness",
+    "human-qualification",
+    "device-qualification",
+    "physical-performance"
+  ]
+}
