@@ -7,7 +7,7 @@ Date: 2026-09-19
 This register prevents simulation, verification, and device-qualification subsystems from becoming orphaned. Nemosyne Data indexes and studies these systems; it does not become a second product runtime.
 
 ## Existing capabilities
-- Playwright production-browser verification: nemosyne/playwright.config.ts and tests/smoke. Real production-build browser evidence. Currently Chromium/Desktop Chrome only.
+- Playwright production-browser verification: nemosyne/playwright.config.ts and tests/smoke. Real production-build browser evidence. Currently Chromium/Desktop Chrome only. The VSL `playwright-browser` worker executes the governed `vsl-desktop-product-operability-v1` smoke subset only when `NEMOSYNE_SOURCE_ROOT` is clean and exactly matches the job specimen SHA; config hash, test list, and native log are recorded as evidence, while XR/device/human/physical-performance claims remain prohibited.
 - USIM WebXR/IWER: nemosyne/dev/xr-simulator. Controller, hand/pinch, 6DoF pose and deterministic scenarios. The VSL `xr-simulator` worker executes the native Nemosyne Vitest surface only when `NEMOSYNE_SOURCE_ROOT` is clean and exactly matches the job specimen SHA; otherwise it records `ABSTAIN`.
 - USIM-A lifecycle: LifecycleScenarioRunner. XR enter/exit/re-entry, stale async work, generation/concurrency races.
 - XR experimental matrix: nemosyne/dev/xr-lab/ExperimentalProfiles.ts. Device x fault x dataset x repetition experiments.

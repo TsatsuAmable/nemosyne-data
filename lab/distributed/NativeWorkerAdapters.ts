@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { LabJob } from './WorkProtocol.ts';
 import { loadPerturbationCampaignConfig } from './PerturbationCampaignConfig.ts';
+import { loadBrowserCampaignConfig } from './BrowserCampaignConfig.ts';
 
 export interface NativeRunResult { disposition:string; evidenceRefs:string[] }
 export type NativeWorkerAdapter=(job:LabJob)=>Promise<NativeRunResult>;
@@ -26,6 +27,11 @@ const capture=(cmd:string,args:string[],cwd:string)=>new Promise<{code:number;ou
  const p=spawn(cmd,args,{cwd,env:process.env});let output='';
  p.stdout?.on('data',chunk=>{output+=String(chunk)});p.stderr?.on('data',chunk=>{output+=String(chunk)});
  p.on('error',reject);p.on('exit',code=>resolve({code:code??1,output}));
+});
+const captureChannels=(cmd:string,args:string[],cwd:string)=>new Promise<{code:number;stdout:string;stderr:string}>((resolve,reject)=>{
+ const p=spawn(cmd,args,{cwd,env:process.env});let stdout='';let stderr='';
+ p.stdout?.on('data',chunk=>{stdout+=String(chunk)});p.stderr?.on('data',chunk=>{stderr+=String(chunk)});
+ p.on('error',reject);p.on('exit',code=>resolve({code:code??1,stdout,stderr}));
 });
 
 async function runXrSimulator(job:LabJob):Promise<NativeRunResult>{
@@ -76,11 +82,44 @@ async function runPerturbationCampaign(job:LabJob):Promise<NativeRunResult>{
  return{disposition,evidenceRefs:[summary,log]};
 }
 
+async function runPlaywrightBrowser(job:LabJob):Promise<NativeRunResult>{
+ const configPath=path.resolve(process.env.NEMOSYNE_BROWSER_CONFIG??'lab/config/browser-campaign.default.json');
+ let loaded:Awaited<ReturnType<typeof loadBrowserCampaignConfig>>;
+ try{loaded=await loadBrowserCampaignConfig(configPath)}catch(error){return{disposition:'ABSTAIN',evidenceRefs:[await marker(job,'playwright-abstain.json',{jobId:job.jobId,specimenSha:job.specimenSha,configPath,reason:`invalid or unavailable browser config: ${String(error)}`})]}}
+ const {config,configHash}=loaded;
+ const prohibited=job.claims.filter(claim=>config.prohibitedClaims.includes(claim));
+ const unsupported=job.claims.filter(claim=>!config.claims.includes(claim));
+ if(prohibited.length||unsupported.length)return{disposition:'ABSTAIN',evidenceRefs:[await marker(job,'playwright-abstain.json',{jobId:job.jobId,specimenSha:job.specimenSha,configId:config.id,configHash,prohibited,unsupported,reason:'browser config does not authorize every requested claim'})]};
+ const root=path.resolve(process.env.NEMOSYNE_SOURCE_ROOT??'../nemosyne');
+ let head:{code:number;output:string};
+ try{head=await capture('git',['rev-parse','HEAD'],root)}catch(error){return{disposition:'ABSTAIN',evidenceRefs:[await marker(job,'playwright-abstain.json',{jobId:job.jobId,specimenSha:job.specimenSha,configId:config.id,configHash,reason:`Nemosyne source checkout unavailable: ${String(error)}`})]}}
+ const actual=head.output.trim();
+ if(head.code!==0||actual!==job.specimenSha)return{disposition:'ABSTAIN',evidenceRefs:[await marker(job,'playwright-abstain.json',{jobId:job.jobId,specimenSha:job.specimenSha,actualHead:actual||null,configId:config.id,configHash,reason:'Nemosyne source checkout does not match the exact job specimen SHA'})]};
+ const status=await capture('git',['status','--porcelain'],root);
+ if(status.code!==0||status.output.trim())return{disposition:'ABSTAIN',evidenceRefs:[await marker(job,'playwright-abstain.json',{jobId:job.jobId,specimenSha:job.specimenSha,configId:config.id,configHash,reason:'Nemosyne source checkout is not clean'})]};
+ const cli=path.join(root,'node_modules','@playwright','test','cli.js');
+ try{await fs.access(cli);await fs.access(path.join(root,config.playwrightConfig));for(const test of config.tests)await fs.access(path.join(root,test))}catch{return{disposition:'ABSTAIN',evidenceRefs:[await marker(job,'playwright-abstain.json',{jobId:job.jobId,specimenSha:job.specimenSha,configId:config.id,configHash,reason:'configured Playwright runner, config, or smoke test is unavailable'})]}}
+ const result=await captureChannels(process.execPath,[cli,'test','--reporter=json','--config',config.playwrightConfig,...config.tests],root);
+ let stats:{expected:number;skipped:number;unexpected:number;flaky:number;duration:number}|null=null;
+ let reportError:string|null=null;
+ try{
+  const parsed=JSON.parse(result.stdout) as {stats?:Partial<{expected:number;skipped:number;unexpected:number;flaky:number;duration:number}>};
+  const candidate=parsed.stats;
+  if(!candidate||![candidate.expected,candidate.skipped,candidate.unexpected,candidate.flaky,candidate.duration].every(Number.isFinite))throw new Error('Playwright JSON report is missing finite stats');
+  stats={expected:candidate.expected!,skipped:candidate.skipped!,unexpected:candidate.unexpected!,flaky:candidate.flaky!,duration:candidate.duration!};
+ }catch(error){reportError=String(error)}
+ const complete=stats!==null&&stats.expected>0&&stats.skipped===0&&stats.unexpected===0&&stats.flaky===0;
+ const disposition=result.code===0&&complete?'PASS':'FAIL';
+ const log=evidence(job,'playwright-browser.log');await fs.mkdir(path.dirname(log),{recursive:true});await fs.writeFile(log,result.stderr+'\n'+result.stdout);
+ const summary=await marker(job,'playwright-browser.json',{jobId:job.jobId,specimenSha:job.specimenSha,configId:config.id,configHash,disposition,exitCode:result.code,claims:job.claims,tests:config.tests,playwrightConfig:config.playwrightConfig,stats,reportError,policy:{requiresAtLeastOneExpectedTest:true,allowsSkipped:false,allowsUnexpected:false,allowsFlaky:false},prohibitedClaims:config.prohibitedClaims});
+ return{disposition,evidenceRefs:[summary,log]};
+}
+
 export const nativeWorkerAdapters:Partial<Record<LabJob['worker'],NativeWorkerAdapter>>={
  'known-structure':async job=>{await run(process.execPath,['--experimental-strip-types','lab/parity-selftest.ts'],{NEMOSYNE_BUILD_HASH:job.specimenSha});return{disposition:'RECORDED',evidenceRefs:[await marker(job,'known-structure.json',{jobId:job.jobId,specimenSha:job.specimenSha,runner:'lab/parity-selftest.ts'})]};},
  'perturbation-campaign':runPerturbationCampaign,
  'adversarial-review':async job=>({disposition:'ABSTAIN',evidenceRefs:[await marker(job,'adversarial-review-abstain.json',{reason:'review packet/provider binding required',jobId:job.jobId})]}),
- 'playwright-browser':async job=>({disposition:'ABSTAIN',evidenceRefs:[await marker(job,'playwright-abstain.json',{reason:'native nemosyne product runner binding required',jobId:job.jobId})]}),
+ 'playwright-browser':runPlaywrightBrowser,
  'xr-simulator':runXrSimulator,
  'quest-qv':async job=>({disposition:'ABSTAIN',evidenceRefs:[await marker(job,'quest-qv-abstain.json',{reason:'physical Quest qualification is explicit/on-demand',jobId:job.jobId})]})
 };
